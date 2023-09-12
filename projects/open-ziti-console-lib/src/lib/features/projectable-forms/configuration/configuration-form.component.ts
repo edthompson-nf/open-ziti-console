@@ -14,6 +14,7 @@ import {SchemaService} from "../../../services/schema.service";
 import {ProjectableForm} from "../projectable-form.class";
 import {JsonEditorComponent, JsonEditorOptions} from 'ang-jsoneditor';
 import _ from "lodash";
+import {JsonViewComponent} from "../../json-view/json-view.component";
 
 
 @Component({
@@ -23,7 +24,8 @@ import _ from "lodash";
 })
 export class ConfigurationFormComponent extends ProjectableForm implements OnInit, OnDestroy {
     @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
-    @ViewChild(JsonEditorComponent, {static: false}) editor!: JsonEditorComponent;
+    @ViewChild(JsonViewComponent, { static: false }) editor!: JsonViewComponent;
+
 
     @Input() override formData: any = {};
     @Input() override errors: any = {};
@@ -49,10 +51,11 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     items: any = [];
     subscription = new Subscription()
     editorOptions: JsonEditorOptions;
-    jsonData: any;
+    jsonData:any =  { };
     onChangeDebounced = _.debounce(this.onJsonChange.bind(this), 400);
     private schema: any;
     private readOnly: false;
+    configSchema: any;
 
     constructor(private svc: ConfigurationService,
                 private schemaSvc: SchemaService) {
@@ -92,6 +95,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     render(schema: any) {
         if (schema.properties) {
+            this.jsonData = JSON.stringify(schema.properties);
             this.items = this.schemaSvc.render(schema, this.dynamicForm, this.lColorArray, this.bColorArray);
             for (let obj of this.items) {
                 const cRef = obj.component;

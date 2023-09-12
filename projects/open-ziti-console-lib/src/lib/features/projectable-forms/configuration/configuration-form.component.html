@@ -10,13 +10,13 @@
         </option>
     </select>
     <ng-container #dynamicform></ng-container>
-    <json-editor
-        #editor
-        (blur)="onJsonChange()"
-        (mouseout)="onJsonChange()"
-        (paste)="onJsonChangeDebounced()"
-        [data]="jsonData"
-        [options]="editorOptions"
-    >
-    </json-editor>
+    <div class="app-json-view">
+        <app-json-view
+            #editor
+            (jsonChange)="onJsonChange()"
+            [data]="jsonData"
+            [schema]="configSchema"
+            ngDefaultControl
+        ></app-json-view>
+    </div>
 </div>

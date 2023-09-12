@@ -32,5 +32,6 @@ export * from './lib/features/messaging/growler.component';
 export * from './lib/features/messaging/growler.service';
 export * from './lib/features/messaging/growler.model';
 export * from './lib/features/messaging/logger.service';
+export * from './lib/features/json-view/json-view.component';
 export * from './lib/pages/configurations/configurations-page.component';
 export * from './lib/open-ziti.constants';

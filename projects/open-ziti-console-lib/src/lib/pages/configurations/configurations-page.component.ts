@@ -11,6 +11,7 @@ import {CallbackResults} from "../../features/list-page-features/list-page-form/
     styleUrls: ['./configurations-page.component.scss']
 })
 export class ConfigurationsPageComponent extends ListPageComponent implements OnInit {
+
     title = 'Configuration Management'
     tabs: { url: string, label: string }[] ;
     formTitle = '';

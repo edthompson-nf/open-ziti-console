@@ -67,7 +67,7 @@ const routes: Routes = [
   },
   {
     path: 'configs',
-    component: ZacWrapperComponent,
+    component: ConfigurationsPageComponent,
     canActivate: [authenticationGuard],
   },
   {

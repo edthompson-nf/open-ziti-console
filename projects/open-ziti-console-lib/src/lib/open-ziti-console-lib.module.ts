@@ -45,6 +45,7 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import {JsonViewComponent} from "./features/json-view/json-view.component";
 
 @NgModule({
     declarations: [
@@ -82,6 +83,7 @@ import {NgJsonEditorModule} from "ang-jsoneditor";
         ExtendableComponent,
         GrowlerComponent,
         ConfirmComponent,
+        JsonViewComponent
     ],
     imports: [
         CommonModule,
@@ -115,6 +117,7 @@ import {NgJsonEditorModule} from "ang-jsoneditor";
         IdentitiesPageComponent,
         ZacRoutingModule,
         GrowlerComponent,
+        JsonViewComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
