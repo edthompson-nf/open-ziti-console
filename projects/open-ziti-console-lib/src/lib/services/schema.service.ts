@@ -250,7 +250,7 @@ export class SchemaService {
     }
 
     setValue(schema: any, key: string, type: string, value: any, parentage: string[]) {
-        if (value == null) {
+        if (!value) {
             if (type == "array") {
                 value = [];
             } else if (type == "integer") {
@@ -260,78 +260,78 @@ export class SchemaService {
             } else {
                 value = "";
             }
-        } else if (type == "boolean") {
-            if (value) {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).addClass("on");
-                $("." + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_area").show();
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop("disabled", true);
-                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop('nodeName') == "INPUT") $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).val("");
-            } else $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).removeClass("on");
-        } else {
-            if (type == "array") {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").html("");
-                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                    let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
-                    for (let i = 0; i < total; i++) {
-                        $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).removeClass("checked");
-                    }
-                }
-                for (let i = 0; i < value.length; i++) {
-                    if (typeof value[i] == "object") {
-                        let values = [];
-                        for (let prop in value[i]) {
-                            values.push(prop + ": " + value[i][prop]);
-                        }
-                        let types = [];
-
-                        let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_Button');
-                        let id = obj.data("id");
-                        let vals = obj.data("values").split(',');
-                        for (let j = 0; j < vals.length; j++) {
-                            if ($("#" + id + "_" + vals[j]).attr('type') == "number") {
-                                types.push("number");
-                            } else {
-                                types.push("string");
-                            }
-                        }
-
-                        let element = $('<div class="tag obj" data-types="' + types.toString() + '">' + values.toString() + '</div>');
-                        element.click(schema.removeMe);
-                        $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
-                    } else {
-                        if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                            let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
-                            for (let i = 0; i < total; i++) {
-                                if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).data("value") == value[i]) {
-                                    $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).addClass("checked");
-                                }
-                            }
-                        } else {
-                            let element = $('<div class="tag">' + value[i] + '</div>');
-                            element.click(schema.removeMe);
-                            $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
-                        }
-                    }
-                }
-            } else {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val(value);
-            }
+        // } else if (type == "boolean") {
+            // if (value) {
+            //     $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).addClass("on");
+            //     $("." + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_area").show();
+            //     $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop("disabled", true);
+            //     if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).prop('nodeName') == "INPUT") $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key.split("forward").join("").toLowerCase()).val("");
+            // } else $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).removeClass("on");
+        // } else {
+        //     if (type == "array") {
+        //         $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").html("");
+        //         if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
+        //             let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
+        //             for (let i = 0; i < total; i++) {
+        //                 $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).removeClass("checked");
+        //             }
+        //         }
+        //         for (let i = 0; i < value.length; i++) {
+        //             if (typeof value[i] == "object") {
+        //                 let values = [];
+        //                 for (let prop in value[i]) {
+        //                     values.push(prop + ": " + value[i][prop]);
+        //                 }
+        //                 let types = [];
+        //
+        //                 let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_Button');
+        //                 let id = obj.data("id");
+        //                 let vals = obj.data("values").split(',');
+        //                 for (let j = 0; j < vals.length; j++) {
+        //                     if ($("#" + id + "_" + vals[j]).attr('type') == "number") {
+        //                         types.push("number");
+        //                     } else {
+        //                         types.push("string");
+        //                     }
+        //                 }
+        //
+        //                 let element = $('<div class="tag obj" data-types="' + types.toString() + '">' + values.toString() + '</div>');
+        //                 element.click(schema.removeMe);
+        //                 $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
+        //             } else {
+        //                 if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
+        //                     let total = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).data("total");
+        //                     for (let i = 0; i < total; i++) {
+        //                         if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).data("value") == value[i]) {
+        //                             $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i).addClass("checked");
+        //                         }
+        //                     }
+        //                 } else {
+        //                     let element = $('<div class="tag">' + value[i] + '</div>');
+        //                     element.click(schema.removeMe);
+        //                     $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").append(element);
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val(value);
+        //     }
         }
         return value;
     }
 
-    getValue(key: string, property: any, json: any, parentage: string[]) {
+    getValue(key: string, property: any, json: any, parentage: string[] =[]) {
         if (this.getType(property) == "array") {
             json[key] = [];
-            if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key);
+            if ($("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
+                let obj = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key);
                 let total = obj.data("total");
                 for (let i = 0; i < total; i++) {
-                    let item = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i);
+                    let item = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key + "_" + i);
                     if (item.hasClass("checked")) json[key].push(item.data("value"));
                 }
             } else {
-                $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").children().each(function (i, e) {
+                $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key + "_selected").children().each(function (i, e) {
                     if ($(e).hasClass("obj")) {
                         let items = $(e).html().split(',');
                         let types = $(e).data("types").split(',');
@@ -354,9 +354,9 @@ export class SchemaService {
                 });
             }
         } else if (this.getType(property) == "boolean") {
-            json[key] = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("on");
+            json[key] = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).hasClass("on");
         } else if (this.getType(property) == "integer") {
-            let numValue: any = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val();
+            let numValue: any = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).val();
             if (numValue != null && numValue.trim().length > 0) {
                 numValue = numValue.trim();
                 if (numValue == "" || isNaN(numValue)) {
@@ -370,7 +370,7 @@ export class SchemaService {
                 delete json[key];
             }
         } else {
-            json[key] = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).val();
+            json[key] = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).val();
         }
         return json;
     }
@@ -399,7 +399,7 @@ export class SchemaService {
         return listItems;
     }
 
-    validateProperty(schema: any, key: string, property: any, parentage: string[]) {
+    validateProperty(schema: any, key: string, property: any, parentage: string[] = []) {
         let type = this.getType(property);
         if (type == "object") {
             for (let subKey in property.properties) {
@@ -424,20 +424,20 @@ export class SchemaService {
                 }
             } else if (type == "array") {
                 if (schema.data.required && schema.data.required.includes(key)) {
-                    if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
-                        let obj = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key);
+                    if ($("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).hasClass("checkboxList")) {
+                        let obj = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key);
                         let total = obj.data("total");
                         let hasSelection = false;
                         for (let i = 0; i < total; i++) {
-                            let item = $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_" + i);
+                            let item = $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key + "_" + i);
                             if (item.hasClass("checked")) {
                                 hasSelection = true;
                                 break;
                             }
                         }
-                        if (!hasSelection) $("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key).addClass("errors");
+                        if (!hasSelection) $("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key).addClass("errors");
                     } else {
-                        if ($("#" + ((parentage != null) ? parentage + '_' : '') + "schema_" + key + "_selected").children().length == 0) elem.addClass("errors");
+                        if ($("#" + ((parentage.length > 0) ? parentage + '_' : '') + "schema_" + key + "_selected").children().length == 0) elem.addClass("errors");
                     }
                 }
             } else {
@@ -628,7 +628,7 @@ export class SchemaService {
                 componentRef = this.buildNestedContainer(view, nestLevel, key, parentage, property);
                 // if (items.type && items.type == "object" && items.properties != null) {
                 //     let properties = items.properties;
-                //     html += '<div id="' + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_selected" class="selectedItems"></div>';
+                //     html += '<div id="' + ((parentage.length > 0) ? parentage + '_' : '') + 'schema_' + key + '_selected" class="selectedItems"></div>';
                 //     html += '<div class="subform">';
                 //     let values = [];
                 //     if (key == "portRanges" || key == "allowedPortRanges") html += '<div class="grid splitadd">';
@@ -650,7 +650,7 @@ export class SchemaService {
                 //         values.push(subItems[i].subKey);
                 //         html += this.getField(subItems[i].subKey, subItems[i].value, subItems[i].key);
                 //     }
-                //     html += '<div><div id="' + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_Button" class="button subobject" data-id="' + key + '_schema" data-to="' + ((parentage != null) ? parentage + '_' : '') + 'schema_' + key + '_selected" data-values="' + values.toString() + '">Add</div></div>'
+                //     html += '<div><div id="' + ((parentage.length > 0) ? parentage + '_' : '') + 'schema_' + key + '_Button" class="button subobject" data-id="' + key + '_schema" data-to="' + ((parentage.length > 0) ? parentage + '_' : '') + 'schema_' + key + '_selected" data-values="' + values.toString() + '">Add</div></div>'
                 //     if (key == "portRanges") html += '</div>';
                 //     html += '</div></div>';
                 // } else
@@ -702,92 +702,89 @@ export class SchemaService {
         return componentRef;
     }
 
-    // val(schema: any, value: any, bypass: boolean) {
-    //     if (value != null) {
-    //         if (schema.properties) {
-    //             for (let key in schema.properties) {
-    //                 let property = schema.properties[key];
-    //                 let type = this.getType(property);
-    //                 if (type == "object") {
-    //                     if (value[key] == null) value[key] = {};
-    //                     if (property.properties != null) {
-    //                         for (let subKey in property.properties) {
-    //                             value[key][subKey] = this.setValue(schema, subKey, type, value[key][subKey], key);
-    //                         }
-    //                     }
-    //                 } else value[key] = this.setValue(schema, key, type, value[key]);
-    //             }
-    //             // if (!bypass) {
-    //             //     schema.codeView.setValue(JSON.stringify(value));
-    //             //     schema.codeView.autoFormatRange({line: 0, ch: 0}, {line: schema.codeView.lineCount()});
-    //             //     schema.codeView.setSize(null, 260);
-    //             // }
-    //         }
-    //     } else {
-    //         let json: any = {};
-    //         if (schema.properties) {
-    //             for (let key in schema.properties) {
-    //                 let property = schema.properties[key];
-    //                 if (this.getType(property) == "object") {
-    //                     json[key] = {};
-    //                     if (property.properties != null) {
-    //                         for (let subKey in property.properties) {
-    //                             json[key] = this.getValue(schema, subKey, property.properties[subKey], json[key]);
-    //                         }
-    //                     }
-    //                 } else json = this.getValue(schema, key, property, json);
-    //             }
-    //             if (json.dialInterceptedAddress) {
-    //                 json.allowedAddresses = schema.getListValue('schema_dialInterceptedAddress_allowedAddresses');
-    //                 json.forwardAddress = true;
-    //                 delete json.address;
-    //                 delete json.dialInterceptedAddress;
-    //             } else {
-    //                 delete json.dialInterceptedAddress;
-    //             }
-    //             if (json.dialInterceptedProtocol) {
-    //                 json.allowedProtocols = schema.getListValue('schema_dialInterceptedProtocol_allowedProtocols');
-    //                 json.forwardProtocol = true;
-    //                 delete json.protocol;
-    //                 delete json.dialInterceptedProtocol;
-    //             } else {
-    //                 delete json.dialInterceptedProtocol;
-    //             }
-    //             if (json.dialInterceptedPort) {
-    //                 json.allowedPortRanges = schema.getListValue('schema_dialInterceptedPort_allowedPorts');
-    //                 json.forwardPort = true;
-    //                 delete json.port;
-    //                 delete json.dialInterceptedPort;
-    //             } else {
-    //                 delete json.dialInterceptedPort;
-    //             }
-    //             if (json.forwardProtocol) {
-    //                 delete json.protocol;
-    //             } else {
-    //                 delete json.forwardProtocol;
-    //                 delete json.allowedProtocols;
-    //             }
-    //             if (json.forwardPort) {
-    //                 delete json.port;
-    //             } else {
-    //                 delete json.forwardPort;
-    //                 delete json.allowedPortRanges;
-    //             }
-    //             if (json.forwardAddress) {
-    //                 delete json.address;
-    //             } else {
-    //                 delete json.forwardAddress;
-    //                 delete json.allowedAddresses;
-    //             }
-    //             // if (json.listenOptions) delete json.listenOptions;
-    //             if (json.httpChecks) delete json.httpChecks;
-    //             if (json.portChecks) delete json.portChecks;
-    //         }
-    //         return json;
-    //     }
-    // }
+    val(schema: any, value?: any) {
+        if (value) {
+            if (schema.properties) {
+                for (let key in schema.properties) {
+                    let property = schema.properties[key];
+                    let type = this.getType(property);
+                    if (type == "object") {
+                        if (value[key] == null) value[key] = {};
+                        if (property.properties != null) {
+                            for (let subKey in property.properties) {
+                                value[key][subKey] = this.setValue(schema, subKey, type, value[key][subKey],[ key]);
+                            }
+                        }
+                    } else value[key] = this.setValue(schema, key, type, value[key], null);
+                }
+            }
+            return value;
+        } else {
+            let json: any = {};
+            if (schema.properties) {
+                for (let key in schema.properties) {
+                    let property = schema.properties[key];
+                    if (this.getType(property) == "object") {
+                        json[key] = {};
+                        if (property.properties != null) {
+                            for (let subKey in property.properties) {
+                                json[key] = this.getValue(subKey, property.properties[subKey], json[key]);
+                            }
+                        }
+                    } else json = this.getValue(key, property, json);
+                }
+                if (json.dialInterceptedAddress) {
+                    json.allowedAddresses = schema.getListValue('schema_dialInterceptedAddress_allowedAddresses');
+                    json.forwardAddress = true;
+                    delete json.address;
+                    delete json.dialInterceptedAddress;
+                } else {
+                    delete json.dialInterceptedAddress;
+                }
+                if (json.dialInterceptedProtocol) {
+                    json.allowedProtocols = schema.getListValue('schema_dialInterceptedProtocol_allowedProtocols');
+                    json.forwardProtocol = true;
+                    delete json.protocol;
+                    delete json.dialInterceptedProtocol;
+                } else {
+                    delete json.dialInterceptedProtocol;
+                }
+                if (json.dialInterceptedPort) {
+                    json.allowedPortRanges = schema.getListValue('schema_dialInterceptedPort_allowedPorts');
+                    json.forwardPort = true;
+                    delete json.port;
+                    delete json.dialInterceptedPort;
+                } else {
+                    delete json.dialInterceptedPort;
+                }
+                if (json.forwardProtocol) {
+                    delete json.protocol;
+                } else {
+                    delete json.forwardProtocol;
+                    delete json.allowedProtocols;
+                }
+                if (json.forwardPort) {
+                    delete json.port;
+                } else {
+                    delete json.forwardPort;
+                    delete json.allowedPortRanges;
+                }
+                if (json.forwardAddress) {
+                    delete json.address;
+                } else {
+                    delete json.forwardAddress;
+                    delete json.allowedAddresses;
+                }
+                // if (json.listenOptions) delete json.listenOptions;
+                if (json.httpChecks) delete json.httpChecks;
+                if (json.portChecks) delete json.portChecks;
+            }
+            return json;
+        }
+    }
 
-    private addError(errors: any, key: string, msg: string) {
+
+private addError(errors: any, key: string, msg: string) {
         if (errors[key]) errors[key] = `${errors[key]}; ${msg}`;
         else errors[key] = msg;
         return errors;

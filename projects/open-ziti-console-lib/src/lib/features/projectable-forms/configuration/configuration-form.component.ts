@@ -1,4 +1,5 @@
 import {
+    ChangeDetectorRef,
     Component,
     ComponentRef,
     EventEmitter,
@@ -26,7 +27,6 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     @ViewChild("dynamicform", {read: ViewContainerRef}) dynamicForm!: ViewContainerRef;
     @ViewChild(JsonViewComponent, { static: false }) editor!: JsonViewComponent;
 
-
     @Input() override formData: any = {};
     @Input() override errors: any = {};
     @Output() currentSchema = new EventEmitter<any>();
@@ -51,20 +51,22 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     items: any = [];
     subscription = new Subscription()
     editorOptions: JsonEditorOptions;
-    jsonData:any =  { };
+    jsonData:any =  { "edward": "test"};
     onChangeDebounced = _.debounce(this.onJsonChange.bind(this), 400);
     private schema: any;
     private readOnly: false;
     configSchema: any;
+    showEditor = false;
 
-    constructor(private svc: ConfigurationService,
+    constructor(private changeDetector: ChangeDetectorRef,
+                private svc: ConfigurationService,
                 private schemaSvc: SchemaService) {
         super();
     }
 
     async createForm() {
         this.clearForm();
-        if (this.configType && this.dynamicForm) {
+        if (this.configType && (this.showEditor || this.dynamicForm)) {
            this.schema = await this.svc.getSchema(this.configType);
             if (this.schema) {
                 this.currentSchema.emit(this.schema);
@@ -94,25 +96,27 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     }
 
     render(schema: any) {
-        if (schema.properties) {
-            this.jsonData = JSON.stringify(schema.properties);
-            this.items = this.schemaSvc.render(schema, this.dynamicForm, this.lColorArray, this.bColorArray);
-            for (let obj of this.items) {
-                const cRef = obj.component;
-                cRef.instance.errors = this.errors;
-                if (cRef?.instance.valueChange) {
-                    const pName: string[]  = cRef.instance.parentage;
-                    let parentKey;
-                    if(pName) parentKey = pName.join('.');
-                    if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
-                    this.subscription.add(
-                        cRef.instance.valueChange.subscribe((val: any) => {
-                            this.setFormValue(cRef, val);
-                        }));
+        if (schema?.properties) {
+            this.jsonData = this.schemaSvc.val(schema);
+            if(!this.showEditor) {
+                this.items = this.schemaSvc.render(schema, this.dynamicForm, this.lColorArray, this.bColorArray);
+                for (let obj of this.items) {
+                    const cRef = obj.component;
+                    cRef.instance.errors = this.errors;
+                    if (cRef?.instance.valueChange) {
+                        const pName: string[] = cRef.instance.parentage;
+                        let parentKey;
+                        if (pName) parentKey = pName.join('.');
+                        if (parentKey && !this.formData[parentKey]) this.formData[parentKey] = {};
+                        this.subscription.add(
+                            cRef.instance.valueChange.subscribe((val: any) => {
+                                this.setFormValue(cRef, val);
+                            }));
+                    }
                 }
-            }
 
-            this.showButtons.emit(this.items.length > 0);
+                this.showButtons.emit(this.items.length > 0);
+            }
         }
     }
 
@@ -126,8 +130,6 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
                 this.options = recs.map(r => r.name).sort();
             })
     }
-
-
 
     private setFormValue(cRef: ComponentRef<any>, val: any) {
         const pName = cRef.instance.parentage;
@@ -164,7 +166,9 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
 
     }
 
-    onJsonChangeDebounced() {
-
+    toggleEditor() {
+        this.showEditor = !this.showEditor;
+        this.changeDetector.detectChanges();
+        if(!this.showEditor) this.createForm();
     }
 }

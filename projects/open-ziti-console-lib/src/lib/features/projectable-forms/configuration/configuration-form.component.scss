@@ -1,3 +1,15 @@
-.app-json-view {
+.json-view {
   margin-top: 1rem;
     }
+.configform {
+  position:relative;
+}
+.jsonButton {
+  position: absolute;
+  right: 0;
+  top: -2rem;
+  font-size: 12px;
+  font-weight:bold;
+  cursor: pointer;
+  transition: var(--transition);
+}

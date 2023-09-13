@@ -46,7 +46,7 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
       });
     }
     this.content = {
-      json: this.data
+      text: (typeof this.data === 'string')?this.data:JSON.stringify(this.data, null, 4)
     };
     this.editor = new JSONEditor({
       target: this.editorDiv.nativeElement,
@@ -91,19 +91,29 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['data']) {
-      this.schema = changes['data'].currentValue;
+    if(this.editor) {
+      if (changes['schema']) {
+        this.schema = changes['schema'].currentValue;
 
-      if(this.schema) {
-        if (this.validator) {
-          this.validator.schema = this.schema;
-        } else {
-          this.validator = createAjvValidator({
-            schema: changes['data'].currentValue,
-            schemaDefinitions: this.schemaDefinitions,
-            ajvOptions: {}
-          });
+        if (this.schema) {
+          if (this.validator) {
+            this.validator.schema = this.schema;
+          } else {
+            this.validator = createAjvValidator({
+              schema: changes['schema'].currentValue,
+              schemaDefinitions: this.schemaDefinitions,
+              ajvOptions: {}
+            });
+          }
         }
+      }
+      if (changes['data']) {
+        this.content = {
+          text: (typeof changes['data'].currentValue === 'string')
+              ?changes['data'].currentValue
+              :JSON.stringify(changes['data'].currentValue, null, 4)
+        };
+        this.editor.set(this.content);
       }
     }
   }

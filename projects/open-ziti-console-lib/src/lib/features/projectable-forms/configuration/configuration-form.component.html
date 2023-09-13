@@ -1,4 +1,5 @@
 <div class="configform">
+    <div class="jsonButton" (click)="toggleEditor()">{{"{"}} JSON }</div>
     <label for="Name">Name</label>
     <input id="Name" type="text" maxlength="500"
            placeholder="enter a name...">
@@ -9,8 +10,10 @@
                 [value]="config">{{config}}
         </option>
     </select>
-    <ng-container #dynamicform></ng-container>
-    <div class="app-json-view">
+    <div class="dynamic-view" *ngIf="!showEditor">
+        <ng-container #dynamicform></ng-container>
+    </div>
+    <div class="json-view" *ngIf="showEditor">
         <app-json-view
             #editor
             (jsonChange)="onJsonChange()"
