@@ -22,5 +22,6 @@ export const URLS = {
     ZITI_PROFILE: '/profile',
     ZITI_SERVERS: '/servers',
     ZITI_SETTINGS: '/settings',
+    ZITI_CUSTOM_FIELDS: '/custom-fields',
     ZAC_LOGIN: '/login'
 };

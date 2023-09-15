@@ -1,6 +1,9 @@
 import {DataTableFilterService} from "../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "./list-page-service.class";
 import {Injectable} from "@angular/core";
+import {SettingsService} from "../services/settings.service";
+
+import {isEmpty} from "lodash";
 
 @Injectable()
 export abstract class ListPageComponent {
@@ -16,10 +19,12 @@ export abstract class ListPageComponent {
     columnDefs: any = [];
     rowData = [];
     filterApplied = false;
+    sessionId = '';
 
     constructor(
         protected filterService: DataTableFilterService,
-        protected svc: ListPageServiceClass
+        protected svc: ListPageServiceClass,
+        protected settings: SettingsService,
     ) {}
 
     ngOnInit() {
@@ -29,6 +34,14 @@ export abstract class ListPageComponent {
         this.filterService.filtersChanged.subscribe(filters => {
             this.filterApplied = filters && filters.length > 0;
             this.refreshData();
+        });
+        this.settings.settingsChange.subscribe((settings) => {
+            if (!isEmpty(this.settings?.settings?.session?.id)) {
+                if (this.sessionId !== this.settings?.settings?.session?.id) {
+                    this.refreshData();
+                    this.sessionId = this.settings?.settings?.session?.id
+                }
+            }
         });
     }
 

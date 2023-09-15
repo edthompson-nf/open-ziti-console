@@ -62,11 +62,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
-    }
-    .tab:hover {
       border-bottom-width: 4px;
-      border-bottom-color: var(--secondary);
+      border-bottom-color: transparent;
       border-bottom-style: solid;
+      &:hover {
+        border-bottom-color: var(--inputBorder);
+      }
     }
   }
 

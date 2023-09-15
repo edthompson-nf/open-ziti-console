@@ -97,7 +97,7 @@ export class ZacWrapperService {
 
     initZac() {
         const appInit = get(window, 'app.init');
-        this.settingsService.settingsChange.subscribe(() => {
+        this.settingsService.settingsChange.subscribe((settings) => {
             if (!this.settingsService.useNodeServer) {
                 set(window, 'service.call', this.handleServiceCall.bind(this));
             } else {
@@ -216,6 +216,11 @@ export class ZacWrapperService {
                     this.page = 'login';
                     route = this.URLS.ZAC_LOGIN;
                     break;
+                case '/organization':
+                case 'organization':
+                    this.page = 'organization';
+                    route = this.URLS.ZITI_CUSTOM_FIELDS;
+                    break;
                 default:
                     this.page = 'index';
                     route = this.URLS.ZITI_DASHBOARD;
@@ -278,6 +283,7 @@ export class ZacWrapperService {
                     case this.URLS.ZITI_POSTURE_CHECKS:
                         this.page = 'posture-checks';
                         break;
+                    case this.URLS.ZITI_BROWZER_CAS:
                     case this.URLS.ZITI_CERT_AUTHORITIES:
                         this.page = 'cas';
                         break;
@@ -292,6 +298,9 @@ export class ZacWrapperService {
                         break;
                     case this.URLS.ZITI_SERVERS:
                         this.page = 'servers';
+                        break;
+                    case this.URLS.ZITI_CUSTOM_FIELDS:
+                        this.page = 'organization';
                         break;
                     default:
                         this.page = 'index';

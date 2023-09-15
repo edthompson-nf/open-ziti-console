@@ -10,6 +10,7 @@ import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
+import {SettingsService} from "../../services/settings.service";
 
 @Component({
   selector: 'lib-identities',
@@ -26,11 +27,12 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   constructor(
       svc: IdentitiesPageService,
       filterService: DataTableFilterService,
+      settings: SettingsService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperService
   ) {
-    super(filterService, svc);
+    super(filterService, svc, settings);
   }
 
   override ngOnInit() {
@@ -102,6 +104,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         break;
       case 'update':
         this.editItem(event.item)
+        break;
+      case 'create':
+        this.openUpdate()
         break;
       case 'override':
         this.getOverrides(event.item)
