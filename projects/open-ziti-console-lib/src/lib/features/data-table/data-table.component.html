@@ -1,4 +1,4 @@
-<div class="data-table-container" *ngIf="filterApplied || rowData?.length > 0">
+<div class="data-table-container" *ngIf="filterApplied || rowData?.length > 0;else nodata">
     <lib-table-filter-bar
             [startCount]="startCount"
             [endCount]="endCount"
@@ -120,11 +120,11 @@
     </p-calendar>
 </div>
 
-<lib-no-items
-    #noitems
-    *ngIf="!filterApplied && rowData?.length <= 0"
-    (clickEmit)="openCreate()"
-    [image]="'No_Clients'"
-    [isEmpty]="rowData.length === 0"
-    [typeName]="'Identities'"
-></lib-no-items>
+<ng-template #nodata>
+    <lib-no-items
+        (clickEmit)="openCreate()"
+        [image]="'No_Clients'"
+        [isEmpty]="rowData.length === 0"
+        [typeName]="'Identities'"
+    ></lib-no-items>
+</ng-template>
