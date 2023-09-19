@@ -44,7 +44,9 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() emptyMsg: any;
   @Input() filterApplied = false;
   @Input() menuItems: any = [];
-
+  @Input() noItemsClass: any = 'background-image: url("/assets/svgs/No_Clients.svg")';
+  @Input() entityTypeName = 'Identities';
+  @Input() showNoItemsAdd = true;
   @Output() actionRequested = new EventEmitter<{ action: string; item?: any }>();
   // @Output() filterChanged = new EventEmitter();
   @Output() gridReady = new EventEmitter();
@@ -343,6 +345,10 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   closeHeaderFilter(event): void {
     this.showFilterOptions = false;
+  }
+
+  openCreate() {
+    this.actionRequested.emit({action: 'create'});
   }
 
   anySelected() {

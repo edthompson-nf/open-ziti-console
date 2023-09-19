@@ -12,6 +12,8 @@ const DEFAULTS = {
     "editable": true,
     "update": false,
     "location": "../ziti",
+    "protocol": "http",
+    "host": "localhost",
     "port": 1408,
     "portTLS": 8443,
     "rejectUnauthorized": false,
@@ -25,7 +27,8 @@ const DEFAULTS = {
         }
     },
     "from": "",
-    "to": ""
+    "to": "",
+    "useNodeServer": true
 }
 
 @Injectable({
@@ -41,6 +44,9 @@ export class SettingsService {
     port = DEFAULTS.port;
     portTLS = DEFAULTS.portTLS;
     apiVersions: any[] = [];
+    useNodeServer = DEFAULTS.useNodeServer;
+    protocol = DEFAULTS.protocol;
+    host = DEFAULTS.host;
 
     constructor(private httpClient: HttpClient) {
     }

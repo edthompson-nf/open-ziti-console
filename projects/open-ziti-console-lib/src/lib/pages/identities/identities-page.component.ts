@@ -10,6 +10,7 @@ import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
+import {SettingsService} from "../../services/settings.service";
 
 @Component({
   selector: 'lib-identities',
@@ -102,6 +103,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         break;
       case 'update':
         this.editItem(event.item)
+        break;
+      case 'create':
+        this.openUpdate()
         break;
       case 'override':
         this.getOverrides(event.item)

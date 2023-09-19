@@ -45,6 +45,7 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import { NoItemsComponent } from './features/no-items/no-items.component';
 
 @NgModule({
     declarations: [
@@ -82,6 +83,7 @@ import {NgJsonEditorModule} from "ang-jsoneditor";
         ExtendableComponent,
         GrowlerComponent,
         ConfirmComponent,
+        NoItemsComponent,
     ],
     imports: [
         CommonModule,

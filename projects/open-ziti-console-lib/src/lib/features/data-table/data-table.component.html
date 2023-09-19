@@ -121,7 +121,10 @@
 </div>
 
 <ng-template #nodata>
-    <div class="flex-wrapper" *ngIf="false">
-        <div class="empty-table"><span>{{emptyMsg}}</span></div>
-    </div>
+    <lib-no-items
+        (clickEmit)="openCreate()"
+        [image]="'No_Clients'"
+        [isEmpty]="rowData.length === 0"
+        [typeName]="'Identities'"
+    ></lib-no-items>
 </ng-template>

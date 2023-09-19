@@ -1,12 +1,13 @@
 import {Injectable} from "@angular/core";
 import {isEmpty} from 'lodash';
 import moment from 'moment';
-import {FilterObj} from "../../features/data-table/data-table-filter.service";
+import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "../../shared/list-page-service.class";
 import {
     TableColumnDefaultComponent
 } from "../../features/data-table/column-headers/table-column-default/table-column-default.component";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
+import {SettingsService} from "../../services/settings.service";
 
 @Injectable({
     providedIn: 'root'
@@ -29,8 +30,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Delete', action: 'delete'},
     ]
 
-    constructor() {
-        super();
+    constructor(settings: SettingsService, filterService: DataTableFilterService) {
+        super(settings, filterService);
     }
 
     validate = (formData): Promise<CallbackResults> => {

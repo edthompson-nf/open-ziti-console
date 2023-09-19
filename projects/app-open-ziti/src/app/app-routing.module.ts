@@ -145,6 +145,11 @@ const routes: Routes = [
     canActivate: [authenticationGuard],
   },
   {
+    path: 'custom-fields',
+    component: ZacWrapperComponent,
+    canActivate: [authenticationGuard],
+  },
+  {
     path: '**',
     component: PageNotFoundComponent,
     pathMatch: 'full'
