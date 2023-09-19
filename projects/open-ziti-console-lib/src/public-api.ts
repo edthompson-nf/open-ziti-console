@@ -34,3 +34,4 @@ export * from './lib/features/messaging/growler.model';
 export * from './lib/features/messaging/logger.service';
 export * from './lib/pages/configurations/configurations-page.component';
 export * from './lib/open-ziti.constants';
+export * from './lib/features/loading-indicator/loading-indicator.component'

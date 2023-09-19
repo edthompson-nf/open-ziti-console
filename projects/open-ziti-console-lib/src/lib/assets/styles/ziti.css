@@ -1919,7 +1919,7 @@ aside .icon {
     text-align: center;
     top: -8px;
 }
-path {
+path:not(.loader path)  {
     stroke-width: 2;
     stroke: var(--primary);
     stroke-linecap: round;

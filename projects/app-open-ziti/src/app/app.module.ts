@@ -34,7 +34,7 @@ import {LoggingInterceptor} from "./interceptors/logging.interceptor";
     declarations: [
         AppComponent,
         PageNotFoundComponent,
-        LoginComponent
+        LoginComponent,
     ],
     imports: [
         BrowserModule,

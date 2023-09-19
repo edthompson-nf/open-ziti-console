@@ -45,7 +45,13 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import {LottieModule} from "ngx-lottie";
 import { NoItemsComponent } from './features/no-items/no-items.component';
+import {LoadingIndicatorComponent} from "./features/loading-indicator/loading-indicator.component";
+
+export function playerFactory() {
+    return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
+}
 
 @NgModule({
     declarations: [
@@ -84,6 +90,7 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
         GrowlerComponent,
         ConfirmComponent,
         NoItemsComponent,
+        LoadingIndicatorComponent,
     ],
     imports: [
         CommonModule,
@@ -96,6 +103,7 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
         ChipsModule,
         ClickOutsideModule,
         NgJsonEditorModule,
+        LottieModule.forRoot({player: playerFactory})
     ],
     exports: [
         ZacWrapperComponent,
@@ -117,6 +125,7 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
         IdentitiesPageComponent,
         ZacRoutingModule,
         GrowlerComponent,
+        LoadingIndicatorComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

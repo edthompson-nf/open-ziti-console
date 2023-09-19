@@ -13,6 +13,7 @@ import $ from 'jquery';
 })
 export class ZacWrapperComponent implements OnInit, OnDestroy {
 
+  loading = false;
   pageHtml: any = '';
   subscription = new Subscription();
   title = 'Ziti Console';
@@ -27,6 +28,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.wrapperService.initZac();
     this.subscription.add(
     this.wrapperService.pageChanged.subscribe(() => {
@@ -56,6 +58,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   }
 
   async loadPage() {
+    this.loading = true;
     this.pageHtml = await this.wrapperService.loadCurrentPage();
     defer(() => {
       this.executePageScripts();
@@ -80,6 +83,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
       set(window, 'context.watchers', []);
       set(window, 'context.eventWatchers', []);
       invoke(window, 'app.init');
+      this.loading = false;
     }, 50);
   }
 
