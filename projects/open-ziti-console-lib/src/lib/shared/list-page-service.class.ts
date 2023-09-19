@@ -1,10 +1,13 @@
 import {inject} from '@angular/core';
 import {ZitiDataService} from "../services/ziti-data.service";
-import {FilterObj} from "../features/data-table/data-table-filter.service";
+import {DataTableFilterService, FilterObj} from "../features/data-table/data-table-filter.service";
 import {ValidatorCallback} from "../features/list-page-features/list-page-form/list-page-form.component";
 import {DialogRef} from "@angular/cdk/dialog";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmComponent} from "../features/confirm/confirm.component";
+import {SettingsService} from "../services/settings.service";
+
+import {isEmpty} from "lodash";
 
 export abstract class ListPageServiceClass {
 
@@ -27,14 +30,22 @@ export abstract class ListPageServiceClass {
         total: 100
     }
     dataService: ZitiDataService;
-    refreshData: (sort: {sortBy: string, ordering: string}) => void | undefined;
+    refreshData: (sort?: {sortBy: string, ordering: string}) => void | undefined;
 
     menuItems: any = [];
-
+    currentSettings: any = {};
     dialogRef: any;
 
-    constructor() {
+    constructor(protected settings: SettingsService, protected filterService: DataTableFilterService) {
         this.dataService = inject(ZitiDataService);
+        this.settings.settingsChange.subscribe((settings) => {
+            if (!isEmpty(this.settings?.settings?.session?.id)) {
+                if (this.currentSettings?.session?.id !== settings?.session?.id) {
+                    this.refreshData();
+                    this.currentSettings = settings
+                }
+            }
+        });
     }
 
     getTableData(resourceType: string, paging: any, filters?: FilterObj[], sort?: any): Promise<any> {

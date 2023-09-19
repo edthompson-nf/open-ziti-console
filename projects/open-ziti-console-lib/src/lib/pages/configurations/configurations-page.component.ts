@@ -24,10 +24,9 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     constructor(
         svc: ConfigurationsPageService,
         filterService: DataTableFilterService,
-        settings: SettingsService,
         private tabNames: TabNameService,
     ) {
-        super(filterService, svc, settings);
+        super(filterService, svc);
     }
 
     override ngOnInit() {

@@ -27,12 +27,11 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   constructor(
       svc: IdentitiesPageService,
       filterService: DataTableFilterService,
-      settings: SettingsService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperService
   ) {
-    super(filterService, svc, settings);
+    super(filterService, svc);
   }
 
   override ngOnInit() {
