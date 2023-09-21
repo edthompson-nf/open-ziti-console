@@ -1,0 +1,219 @@
+:host {
+  position: relative;
+  width: 100%;
+}
+
+.form-header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+
+  .form-title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .form-title {
+      width: 100%;
+      flex: 1 1 auto;
+      width: 100%;
+      flex: 1 1 auto;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--tableText);
+      margin-left: 12px;
+    }
+
+    .form-title-back-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transform: scaleY(.8);
+      cursor: pointer;
+
+      .form-title-back-button-image {
+        background-image: url(/assets/svgs/ArrowDownDark.svg);
+        background-size: 20px 14px;
+        width: 20px;
+        height: 14px;
+        transform: rotate(90deg);
+      }
+
+      .form-title-back-button-line {
+        border-color: var(--tableText);
+        border-style: solid;
+        border-left-width: 1px;
+        border-right-width: 1px;
+        width: 14px;
+        position: absolute;
+        left: 8px;
+      }
+    }
+  }
+  .header-actions-container {
+    display: flex;
+    flex-direction: row;
+    min-width: 400px;
+    justify-content: flex-end;
+    gap: 20px;
+
+    .save-button {
+      max-width: 65px;
+      min-width: 65px;
+      height: 33px;
+      text-transform: none;
+    }
+  }
+}
+
+.more-actions-container {
+  width: 150px;
+  height: 33px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+
+  .more-actions-button {
+    height: 100%;
+    width: 100%;
+    background-color: var(--inputBorder);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      outline: 0;
+      filter: brightness(95%);
+    }
+  }
+
+  .more-actions-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 15px;
+    margin-right: 10px;
+
+    .more-actions-arrow {
+      background-image: url(/assets/svgs/ArrowDown.svg);
+      background-size: 20px 10px;
+      width: 20px;
+      height: 10px;
+    }
+
+    .more-actions-text {
+      color: var(--tableText);
+      font-weight: 600;
+    }
+  }
+
+  .more-actions-list {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white);
+    position: absolute;
+    top: 33px;
+    width: 100%;
+    box-shadow: 0px 3px 5px 1px var(--boxShadow);
+    border-radius: 5px;
+  }
+  .more-actions-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 25px;
+    width: 100%;
+    padding-left: 15px;
+    color: var(--tableText);
+    cursor: pointer;
+    &:hover {
+      background-color: var(--inputBorder);
+    }
+  }
+}
+
+.form-header-toggle-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .form-header-toggle {
+    display: flex;
+    flex-direction: row;
+    width: 30px;
+    height: 18px;
+    border-radius: 10px;
+    border-color: var(--inputBorder);
+    border-style: solid;
+    border-width: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+      filter: brightness(90%);
+    }
+
+    .form-toggle-switch {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      height: 100%;
+      margin-left: 3px;
+      position: absolute;
+      transition: 0.5s;
+      left: 0;
+
+      &.toggle-right {
+        left: 10px;
+
+        .form-toggle-indicator {
+          border-color: var(--red);
+        }
+      }
+
+      .form-toggle-indicator {
+        height: 10px;
+        border-color: var(--green);
+        border-style: solid;
+        border-left-width: 1px;
+        border-right-width: 1px;
+        position: relative;
+        margin-left: 2px;
+      }
+    }
+  }
+
+  .toggle-option-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--placeholder);
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(90%);
+      &.toggle-option-selected {
+        filter: unset;
+      }
+    }
+
+    &.toggle-option-selected {
+      color: var(--tableText);
+      cursor: default;
+    }
+  }
+}

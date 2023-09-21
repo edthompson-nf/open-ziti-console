@@ -34,3 +34,8 @@ export * from './lib/features/messaging/growler.model';
 export * from './lib/features/messaging/logger.service';
 export * from './lib/pages/configurations/configurations-page.component';
 export * from './lib/open-ziti.constants';
+export * from './lib/features/side-modal/side-modal.component';
+export * from './lib/features/projectable-forms/identity/identity-form.component';
+export * from './lib/features/extendable/extensions-noop.service';
+export * from './lib/features/projectable-forms/form-header/form-header.component';
+

@@ -29,6 +29,7 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     @Input() override errors: any = {};
     @Output() currentSchema = new EventEmitter<any>();
     @Output() showButtons = new EventEmitter<boolean>();
+    @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
     options: string[] = [];
 
@@ -163,4 +164,8 @@ export class ConfigurationFormComponent extends ProjectableForm implements OnIni
     onJsonChangeDebounced() {
 
     }
+
+    save(): void {
+    }
+
 }

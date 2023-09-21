@@ -1,0 +1,19 @@
+.side-modal-container {
+  position: fixed;
+  left: 100%;
+  top: 0;
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  right: 0px;
+  transition: var(--transition);
+  z-index: 10001;
+  background-color: var(--white);
+
+  &.side-modal-open {
+    width: calc(100% - 380px);
+    left: 380px;
+  }
+}
+

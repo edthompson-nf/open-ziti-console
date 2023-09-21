@@ -16,5 +16,7 @@
                     [menuItems]="svc.menuItems"
     >
     </lib-data-table>
-    <app-zac-wrapper></app-zac-wrapper>
 </div>
+<lib-side-modal [(open)]="modalOpen" [showClose]="false">
+    <lib-identity-form [formData]="selectedIdentity" (close)="closeModal()"></lib-identity-form>
+</lib-side-modal>
