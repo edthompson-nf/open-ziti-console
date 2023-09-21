@@ -21,7 +21,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
-
+  selectedIdentity: any = {name: 'TestIdentityName'};
   dialogRef: any;
 
   constructor(
@@ -61,7 +61,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     }
   }
 
+  closeModal() {
+    this.modalOpen = false;
+  }
+
   private openUpdate() {
+    this.modalOpen = true;
+    /*
     $(".adding").show();
     $(".editing").hide();
     window['modal'].show("AddModal");
@@ -70,7 +76,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       $(".modal .close").click(() => {
         $("body").removeClass('updateModalOpen');
       });
-    });
+    });*/
   }
 
   private openBulkDelete(selectedItems: any[]) {

@@ -34,7 +34,6 @@ import {TableCellMenuComponent} from "./features/data-table/cells/table-cell-men
 import {TableColumnMenuComponent} from "./features/data-table/column-headers/table-column-menu/table-column-menu.component";
 import {TableColumnDefaultComponent} from "./features/data-table/column-headers/table-column-default/table-column-default.component";
 import {TableColumnFilterComponent} from "./features/data-table/column-headers/table-column-filter/table-column-filter.component";
-import {IdentityFormComponent} from "./features/projectable-forms/identity/identity-form.component";
 import {HiddenColumnsBarComponent} from "./features/data-table/table-hidden-columns-bar/hidden-columns-bar.component";
 import {FilterBarComponent} from "./features/data-table/table-filter-bar/filter-bar.component";
 import {AgGridModule} from "ag-grid-angular";
@@ -46,6 +45,9 @@ import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
 import { NoItemsComponent } from './features/no-items/no-items.component';
+import { SideModalComponent } from './features/side-modal/side-modal.component';
+import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
+import { FormHeaderComponent } from './features/projectable-forms/form-header/form-header.component';
 
 @NgModule({
     declarations: [
@@ -84,6 +86,8 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
         GrowlerComponent,
         ConfirmComponent,
         NoItemsComponent,
+        SideModalComponent,
+        FormHeaderComponent,
     ],
     imports: [
         CommonModule,
@@ -117,6 +121,8 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
         IdentitiesPageComponent,
         ZacRoutingModule,
         GrowlerComponent,
+        SideModalComponent,
+        IdentityFormComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},

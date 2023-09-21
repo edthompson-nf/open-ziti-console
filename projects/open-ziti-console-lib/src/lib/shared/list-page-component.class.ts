@@ -17,6 +17,8 @@ export abstract class ListPageComponent {
     rowData = [];
     filterApplied = false;
 
+    modalOpen = false;
+
     constructor(
         protected filterService: DataTableFilterService,
         protected svc: ListPageServiceClass
