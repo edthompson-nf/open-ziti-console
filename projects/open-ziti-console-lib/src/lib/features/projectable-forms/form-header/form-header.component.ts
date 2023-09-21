@@ -18,7 +18,7 @@ export class FormHeaderComponent {
 
   requestAction(action, data?: any) {
     if (action === 'toggle-view') {
-      if (this.formView === 'simple') {
+      if (data === 'simple') {
         this.formView = 'raw';
       } else {
         this.formView = 'simple';

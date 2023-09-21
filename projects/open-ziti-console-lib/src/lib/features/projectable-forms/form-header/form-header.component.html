@@ -11,6 +11,7 @@
                     <span
                             class="toggle-option-text"
                             [ngClass]="{'toggle-option-selected': formView === 'simple'}"
+                            (click)="requestAction('toggle-view', 'raw')"
                     >
                         SIMPLE
                     </span>
@@ -26,14 +27,17 @@
             <span
                     class="toggle-option-text"
                     [ngClass]="{'toggle-option-selected': formView === 'raw'}"
+                    (click)="requestAction('toggle-view', 'simple')"
             >
                         RAW
                     </span>
         </div>
         <div class="more-actions-container" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
-            <div class="more-actions-label">
-                <div class="more-actions-text">More Actions</div>
-                <div class="more-actions-arrow"></div>
+            <div class="more-actions-button">
+                <div class="more-actions-label">
+                    <div class="more-actions-text">More Actions</div>
+                    <div class="more-actions-arrow"></div>
+                </div>
             </div>
             <div class="more-actions-list" *ngIf="showActionsDropDown">
                 <div

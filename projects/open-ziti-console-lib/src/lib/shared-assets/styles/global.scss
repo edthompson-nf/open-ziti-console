@@ -70,3 +70,29 @@
   padding-left: 50px;
   padding-right: 50px;
 }
+
+.save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--primary);
+  padding: 7px;
+  border-radius: 7px;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 3px 9px 0 var(--primaryColorOpaque);
+
+  &:hover {
+    outline: 0;
+    filter: brightness(90%);
+    box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+  }
+
+  &:active {
+    background: #648293;
+    box-shadow: none;
+    transform: translateY(1px);
+  }
+}

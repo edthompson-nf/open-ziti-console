@@ -63,17 +63,7 @@
       max-width: 65px;
       min-width: 65px;
       height: 33px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 14px;
       text-transform: none;
-      background: var(--primary);
-      padding: 7px;
-      border-radius: 7px;
-      color: var(--white);
-      cursor: pointer;
     }
   }
 }
@@ -81,13 +71,31 @@
 .more-actions-container {
   width: 150px;
   height: 33px;
-  background-color: var(--inputBorder);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   border-radius: 5px;
   position: relative;
+  cursor: pointer;
+
+  .more-actions-button {
+    height: 100%;
+    width: 100%;
+    background-color: var(--inputBorder);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      outline: 0;
+      filter: brightness(95%);
+    }
+  }
 
   .more-actions-label {
     display: flex;
@@ -97,7 +105,6 @@
     width: 100%;
     margin-left: 15px;
     margin-right: 10px;
-    cursor: pointer;
 
     .more-actions-arrow {
       background-image: url(/assets/svgs/ArrowDown.svg);
@@ -156,6 +163,10 @@
     cursor: pointer;
     position: relative;
 
+    &:hover {
+      filter: brightness(90%);
+    }
+
     .form-toggle-switch {
       display: flex;
       flex-direction: row;
@@ -191,9 +202,18 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--placeholder);
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(90%);
+      &.toggle-option-selected {
+        filter: unset;
+      }
+    }
 
     &.toggle-option-selected {
       color: var(--tableText);
+      cursor: default;
     }
   }
 }
