@@ -11,6 +11,7 @@ import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
 import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
 import {SettingsService} from "../../services/settings.service";
+import {ConsoleEventsService} from "../../services/console-events.service";
 
 @Component({
   selector: 'lib-identities',
@@ -21,7 +22,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
-  selectedIdentity: any = {name: 'TestIdentityName'};
+  selectedIdentity: any = {};
   dialogRef: any;
 
   constructor(
@@ -29,6 +30,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       filterService: DataTableFilterService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
+      private consoleEvents: ConsoleEventsService,
       @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperService
   ) {
     super(filterService, svc);

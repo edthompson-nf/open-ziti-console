@@ -1,0 +1,16 @@
+<div class="form-field-container">
+    <div class="form-field-header">
+        <div class="form-field-title-container">
+            <span class="form-field-title">{{title}}</span>
+            <div
+                *ngIf="helpText"
+                class="form-field-info infoicon"
+                matTooltip="{{helpText}}"
+                matTooltipPosition="below"
+            ></div>
+        </div>
+        <span class="form-field-label" *ngIf="label">{{label}}</span>
+        <span class="form-field-count" *ngIf="count || count === 0">{{count}}</span>
+    </div>
+    <ng-content></ng-content>
+</div>

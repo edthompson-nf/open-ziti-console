@@ -48,6 +48,9 @@ import { NoItemsComponent } from './features/no-items/no-items.component';
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
 import { FormHeaderComponent } from './features/projectable-forms/form-header/form-header.component';
+import { FormFieldContainerComponent } from './features/projectable-forms/form-field-container/form-field-container.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PreviewListComponent } from './features/preview-list/preview-list.component';
 
 @NgModule({
     declarations: [
@@ -88,6 +91,8 @@ import { FormHeaderComponent } from './features/projectable-forms/form-header/fo
         NoItemsComponent,
         SideModalComponent,
         FormHeaderComponent,
+        FormFieldContainerComponent,
+        PreviewListComponent,
     ],
     imports: [
         CommonModule,
@@ -100,6 +105,7 @@ import { FormHeaderComponent } from './features/projectable-forms/form-header/fo
         ChipsModule,
         ClickOutsideModule,
         NgJsonEditorModule,
+        MatTooltipModule
     ],
     exports: [
         ZacWrapperComponent,

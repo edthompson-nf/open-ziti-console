@@ -1,9 +1,37 @@
 <div class="projectable-form-wrapper">
     <div class="identity-form-container">
         <lib-form-header
-                [title]="formData.name"
-                [moreActions]="moreActions"
-                (actionRequested)="headerActionRequested($event)"
+            [title]="formData.name || 'Create a new Identity'"
+            [moreActions]="moreActions"
+            (actionRequested)="headerActionRequested($event)"
         ></lib-form-header>
+
+        <div class="form-group-row">
+            <div class="form-group-column three-fifths">
+                <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
+                    <input class="form-field-input" placeholder="Name this identity"/>
+                </lib-form-field-container>
+                <lib-form-field-container
+                        [title]="'Select or create Identity attributes'"
+                        [label]="'OPTIONAL'"
+                        [helpText]="'Attributes are tags applied to an resource. Apply the same tag to other Identities to form a group of Identities.'"
+                >
+                    <input class="form-field-input" placeholder="Add attributes to group Identities"/>
+                </lib-form-field-container>
+            </div>
+            <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        [title]="'Associated Services'"
+                        [count]="0"
+                        [helpText]="'Preview list of all services that this Identity is associated with.'"
+                >
+                    <lib-preview-list
+                        (itemSelected)="serviceSelected($event)"
+                        [clickable]="true"
+                        [isLoading]="servicesLoading"
+                    ></lib-preview-list>
+                </lib-form-field-container>
+            </div>
+        </div>
     </div>
 </div>
