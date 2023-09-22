@@ -10,6 +10,8 @@ export class IdentityFormComponent extends ProjectableForm {
   @Input() formData: any;
   @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
+  associatedServices: any = [];
+  servicesLoading: any = false;
   moreActions: any = [
     {name: 'open-metrics', label: 'Open Metrics'}
   ]
@@ -33,6 +35,10 @@ export class IdentityFormComponent extends ProjectableForm {
         this.formView = action.data;
         break;
     }
+  }
+
+  serviceSelected(event) {
+
   }
 
   closeModal(): void {
