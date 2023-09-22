@@ -112,6 +112,10 @@
     text-align: center;
     box-shadow: unset;
     transform: translateY(0);
+
+    .ag-dnd-ghost-label {
+      color: var(--tableText);
+    }
   }
 
   .ag-dnd-ghost {
