@@ -17,6 +17,7 @@
     padding: 10px;
     border-radius: 7px;
     height: 100%;
+    min-height: 180px;
 }
 
 .listBox input {
@@ -43,10 +44,10 @@
     float: left;
     font-size: 14px;
     font-weight: 600;
-    color: #4c5566;
     padding-left: 10px;
     padding-right: 10px;
     margin-bottom: 2px;
+    color: var(--primary)
 }
 
 ::-webkit-scrollbar-thumb {
@@ -54,7 +55,8 @@
 }
 
 .clickable {
-    color: var(--primaryColor);
+    color: var(--primary);
+    cursor: pointer;
 }
 
 .clickable:hover,

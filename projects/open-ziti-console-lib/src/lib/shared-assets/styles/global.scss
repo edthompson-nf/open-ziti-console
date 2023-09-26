@@ -105,7 +105,10 @@
   position: relative;
   width: 100%;
   gap: 30px;
-
+  overflow-y: auto;
+  padding-bottom: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
   &.one-third {
     height: 33%;
   }
@@ -121,6 +124,7 @@
   width: 100%;
   gap: 20px;
   flex: 1 1 auto;
+  padding-bottom: 15px;
 
   &.one-third {
     width: 33%;
@@ -155,4 +159,23 @@
   cursor: pointer;
   transition: 0.5s;
   margin-bottom: 3px;
+}
+
+.form-field-advanced .form-field-container {
+  overflow: hidden;
+
+  &:before {
+    content: "";
+    position: absolute;
+    border: 10px dashed var(--primary);
+    top: -8px;
+    bottom: -8px;
+    left: -8px;
+    right: -8px;
+  }
+}
+
+lib-form-field-container {
+  box-shadow: 0px 3px 5px 1px var(--boxShadow);
+  border-radius: 10px;
 }

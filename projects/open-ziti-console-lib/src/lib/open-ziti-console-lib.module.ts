@@ -53,6 +53,8 @@ import { FormFieldContainerComponent } from './features/projectable-forms/form-f
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PreviewListComponent } from './features/preview-list/preview-list.component';
 import {LoadingIndicatorComponent} from "./features/loading-indicator/loading-indicator.component";
+import { FormFieldToggleComponent } from './features/projectable-forms/form-field-toggle/form-field-toggle.component';
+import { JsonViewComponent } from './features/json-view/json-view.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -100,6 +102,8 @@ export function playerFactory() {
         FormFieldContainerComponent,
         PreviewListComponent,
         LoadingIndicatorComponent,
+        FormFieldToggleComponent,
+        JsonViewComponent,
     ],
     imports: [
         CommonModule,

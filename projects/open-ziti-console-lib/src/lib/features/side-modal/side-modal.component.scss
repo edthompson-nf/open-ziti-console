@@ -14,6 +14,7 @@
   &.side-modal-open {
     width: calc(100% - 380px);
     left: 380px;
+    padding-bottom: 0;
   }
 }
 

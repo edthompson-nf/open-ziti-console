@@ -1,0 +1,13 @@
+<div class="form-field-toggle-container">
+    <span class="form-field-label">Show More Options</span>
+    <div class="form-field-line"></div>
+    <div
+            (click)="toggleSwitch()"
+            [ngClass]="{ on: toggleOn }"
+            class="toggle"
+    >
+        <span [hidden]="!toggleOn" class="on-label">ON</span>
+        <span [hidden]="toggleOn" class="off-label">OFF</span>
+        <div class="switch"></div>
+    </div>
+</div>

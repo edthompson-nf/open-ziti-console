@@ -5,10 +5,16 @@
 
 .form-header-container {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
+
+  .form-header-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
 
   .form-title-container {
     display: flex;
