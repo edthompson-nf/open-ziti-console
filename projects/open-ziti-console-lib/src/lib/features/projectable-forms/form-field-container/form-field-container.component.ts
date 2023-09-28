@@ -8,7 +8,10 @@ import {Component, Input} from '@angular/core';
 export class FormFieldContainerComponent {
 
   @Input() title = '';
+  @Input() title2 = undefined;
+  @Input() layout = 'column';
   @Input() helpText: any = undefined;
+  @Input() helpText2: any = undefined;
   @Input() label: any = undefined;
   @Input() count: any = undefined;
   constructor() {}

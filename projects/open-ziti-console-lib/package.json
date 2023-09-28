@@ -18,7 +18,10 @@
     "primeng": "^16.0.2",
     "@angular/cdk": "^16.1.5",
     "@angular/material": "^16.1.5",
-    "json-schema-ref-resolver": "file:dist/json-schema-ref-resolver"
+    "json-schema-ref-resolver": "file:dist/json-schema-ref-resolver",
+    "lottie-web": "^5.12.2",
+    "ngx-lottie": "^10.0.0",
+    "vanilla-jsoneditor": "^0.18.2"
   },
   "private": false,
   "dependencies": {

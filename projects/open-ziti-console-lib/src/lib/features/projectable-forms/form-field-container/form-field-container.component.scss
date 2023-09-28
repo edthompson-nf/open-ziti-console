@@ -1,5 +1,5 @@
 :host {
-    height: 100%;
+    height: fit-content;
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -9,19 +9,33 @@
 .form-field-container {
     display: flex;
     flex-direction: column;
-    box-shadow: 0px 3px 5px 1px var(--boxShadow);
     background-color: var(--navigation);
     padding: 15px 20px;
     border-radius: 10px;
-    box-shadow: 0px 3px 5px 1px var(--boxShadow);
     gap: 15px;
     height: 100%;
+    position: relative;
 
+    .form-field-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+        z-index: 9999;
+    }
+    &.form-field-row {
+        .form-field-content {
+            flex-direction: row;
+            width: 100%;
+        }
+    }
     .form-field-title-container {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
+        flex: 1 1 auto;
+        width: 100%;
     }
     .form-field-header {
         display: flex;
@@ -29,6 +43,7 @@
         justify-content: space-between;
         align-items: center;
         height: 14px;
+        z-index: 9999;
     }
 
     .form-field-title {

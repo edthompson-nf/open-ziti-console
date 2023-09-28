@@ -10,7 +10,7 @@ export class PreviewListComponent {
   @Input() public label = '';
   @Input() public clickable = false;
   @Input() isLoading = false;
-  @Input() allNames = ['Testing 1', 'Testing 2', 'Testing 3', 'One Test', 'Two Test'];
+  @Input() allNames = [];
   @Output() itemSelected = new EventEmitter<string>();
   public names = [];
   filterFor = '';

@@ -44,6 +44,7 @@ import { ConfirmComponent } from './features/confirm/confirm.component';
 import {onAppInit} from "./app.initializer";
 import {ClickOutsideModule} from "ng-click-outside";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import {LottieModule} from "ngx-lottie";
 import { NoItemsComponent } from './features/no-items/no-items.component';
 import { SideModalComponent } from './features/side-modal/side-modal.component';
 import { IdentityFormComponent } from "./features/projectable-forms/identity/identity-form.component";
@@ -51,6 +52,13 @@ import { FormHeaderComponent } from './features/projectable-forms/form-header/fo
 import { FormFieldContainerComponent } from './features/projectable-forms/form-field-container/form-field-container.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PreviewListComponent } from './features/preview-list/preview-list.component';
+import {LoadingIndicatorComponent} from "./features/loading-indicator/loading-indicator.component";
+import { FormFieldToggleComponent } from './features/projectable-forms/form-field-toggle/form-field-toggle.component';
+import { JsonViewComponent } from './features/json-view/json-view.component';
+
+export function playerFactory() {
+    return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
+}
 
 @NgModule({
     declarations: [
@@ -93,6 +101,9 @@ import { PreviewListComponent } from './features/preview-list/preview-list.compo
         FormHeaderComponent,
         FormFieldContainerComponent,
         PreviewListComponent,
+        LoadingIndicatorComponent,
+        FormFieldToggleComponent,
+        JsonViewComponent,
     ],
     imports: [
         CommonModule,
@@ -105,7 +116,8 @@ import { PreviewListComponent } from './features/preview-list/preview-list.compo
         ChipsModule,
         ClickOutsideModule,
         NgJsonEditorModule,
-        MatTooltipModule
+        MatTooltipModule,
+        LottieModule.forRoot({player: playerFactory}),
     ],
     exports: [
         ZacWrapperComponent,
@@ -128,7 +140,8 @@ import { PreviewListComponent } from './features/preview-list/preview-list.compo
         ZacRoutingModule,
         GrowlerComponent,
         SideModalComponent,
-        IdentityFormComponent
+        IdentityFormComponent,
+        LoadingIndicatorComponent
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
