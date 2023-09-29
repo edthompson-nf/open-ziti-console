@@ -55,6 +55,7 @@ import { PreviewListComponent } from './features/preview-list/preview-list.compo
 import {LoadingIndicatorComponent} from "./features/loading-indicator/loading-indicator.component";
 import { FormFieldToggleComponent } from './features/projectable-forms/form-field-toggle/form-field-toggle.component';
 import { JsonViewComponent } from './features/json-view/json-view.component';
+import { TagSelectorComponent } from './features/tag-selector/tag-selector.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -104,6 +105,7 @@ export function playerFactory() {
         LoadingIndicatorComponent,
         FormFieldToggleComponent,
         JsonViewComponent,
+        TagSelectorComponent,
     ],
     imports: [
         CommonModule,

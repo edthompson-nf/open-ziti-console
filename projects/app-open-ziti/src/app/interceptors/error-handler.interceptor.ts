@@ -7,16 +7,19 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import {GrowlerService, GrowlerModel} from "open-ziti-console-lib";
+import {GrowlerService, GrowlerModel, SettingsService} from "open-ziti-console-lib";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private growlerService: GrowlerService) {}
+    constructor(private growlerService: GrowlerService, private settings: SettingsService) {}
 
     intercept(
         request: HttpRequest<any>,
         next: HttpHandler
     ): Observable<HttpEvent<any>> {
+        if (!this.settings?.settings?.interceptErrors) {
+            return next.handle(request);
+        }
         return next.handle(request).pipe(
             catchError((requestError) => {
                 if (requestError.status !== 401) {

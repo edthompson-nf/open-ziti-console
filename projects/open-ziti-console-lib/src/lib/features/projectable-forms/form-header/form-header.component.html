@@ -5,7 +5,10 @@
                 <div class="form-title-back-button-image"></div>
                 <div class="form-title-back-button-line"></div>
             </div>
-            <span class="form-title">{{title}}</span>
+            <div>
+                <span class="form-title">{{title}}</span>
+                <span class="form-title title-name" *ngIf="data.name">{{data.name}}</span>
+            </div>
         </div>
         <div class="header-actions-container">
             <div class="form-header-toggle-container">
@@ -33,7 +36,7 @@
                             RAW
                         </span>
             </div>
-            <div class="more-actions-container" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
+            <div class="more-actions-container" *ngIf="moreActions && moreActions.length > 0" (click)="showMoreActions()" (clickOutside)="closeActionsMoreActions()">
                 <div class="more-actions-button">
                     <div class="more-actions-label">
                         <div class="more-actions-text">More Actions</div>
@@ -53,9 +56,10 @@
             <div class="save-button" (click)="requestAction('save')">Save</div>
         </div>
     </div>
-    <div class="form-header-group">
-        <div *ngFor="let badge of badges" class="header-badge-container">
-            <span>{{badge.name}}</span>
+    <div class="form-header-group badges-container">
+        <div *ngFor="let badge of data.badges" class="header-badge-container {{badge.class}}">
+            <span *ngIf="badge.circle" class="circle {{badge.circle}}"></span>
+            <span class="badge-label">{{badge.label}}</span>
         </div>
     </div>
 </div>

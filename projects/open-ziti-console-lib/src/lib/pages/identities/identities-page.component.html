@@ -18,5 +18,6 @@
     </lib-data-table>
 </div>
 <lib-side-modal [(open)]="modalOpen" [showClose]="false">
-    <lib-identity-form [formData]="selectedIdentity" (close)="closeModal()"></lib-identity-form>
+    <lib-identity-form *ngIf="modalOpen" [formData]="selectedIdentity" [identityRoleAttributes]="identityRoleAttributes" (close)="closeModal($event)"></lib-identity-form>
 </lib-side-modal>
+<lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

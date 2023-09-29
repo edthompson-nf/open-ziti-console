@@ -7,7 +7,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 })
 export abstract class ProjectableForm extends ExtendableComponent {
     @Input() abstract formData: any;
-    @Output() abstract close: EventEmitter<void>;
+    @Output() abstract close: EventEmitter<any>;
     abstract errors: { name: string, msg: string }[];
 
     abstract clear(): void;

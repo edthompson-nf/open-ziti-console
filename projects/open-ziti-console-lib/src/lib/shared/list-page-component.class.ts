@@ -8,6 +8,7 @@ export abstract class ListPageComponent {
     abstract tabs: { url: string, label: string }[] ;
     abstract headerActionClicked(action: string): void;
     abstract tableAction(event: {action: string, item: any}): void;
+    abstract isLoading: boolean;
 
     startCount = '-';
     endCount = '-';
@@ -21,7 +22,7 @@ export abstract class ListPageComponent {
 
     constructor(
         protected filterService: DataTableFilterService,
-        protected svc: ListPageServiceClass
+        public svc: ListPageServiceClass
     ) {}
 
     ngOnInit() {
@@ -49,6 +50,7 @@ export abstract class ListPageComponent {
     }
 
     refreshData(sort?: { sortBy: string, ordering: string }): void {
+        this.isLoading = true;
         this.svc.getData(this.filterService.filters, sort)
             .then((data: any) => {
                 this.rowData = data.data
@@ -56,6 +58,8 @@ export abstract class ListPageComponent {
                 this.endCount = data.meta.pagination.totalCount;
                 this.totalCount = data.meta.pagination.totalCount;
                 this.updateSelectedItems();
+            }).finally(() => {
+                this.isLoading = false;
             });
     }
 }

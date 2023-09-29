@@ -179,3 +179,24 @@ lib-form-field-container {
   box-shadow: 0px 3px 5px 1px var(--boxShadow);
   border-radius: 10px;
 }
+
+
+.icon-copy.copy {
+  right: 18px;
+  top: 5px;
+  width: 30px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 40px;
+  background-image: linear-gradient(to right,var(--navigationTransparent0) 0 20%,var(--navigationTransparent1) 20% 100%);
+
+  &:hover {
+    filter: brightness(1.2);
+    transform: scale(1.10);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}

@@ -6,9 +6,9 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
   styleUrls: ['./form-header.component.scss']
 })
 export class FormHeaderComponent {
+  @Input() data: any = {};
   @Input() title = '';
   @Input() moreActions: any = [];
-  @Input() badges: any = [];
   @Input() formView = 'simple';
 
   @Output() formViewChange: EventEmitter<string> = new EventEmitter<string>();

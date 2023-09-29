@@ -8,6 +8,7 @@ import {
 } from "../../features/data-table/column-headers/table-column-default/table-column-default.component";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
 import {SettingsService} from "../../services/settings.service";
+import {ZitiDataService} from "../../services/ziti-data.service";
 
 @Injectable({
     providedIn: 'root'
@@ -30,7 +31,11 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Delete', action: 'delete'},
     ]
 
-    constructor(settings: SettingsService, filterService: DataTableFilterService) {
+    constructor(
+        settings: SettingsService,
+        filterService: DataTableFilterService,
+        private zitiService: ZitiDataService
+    ) {
         super(settings, filterService);
     }
 
@@ -253,5 +258,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
             }
             return row;
         });
+    }
+
+    public getIdentitiesRoleAttributes() {
+        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING);
     }
 }

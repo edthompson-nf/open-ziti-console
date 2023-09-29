@@ -4,7 +4,7 @@ import {DataTableFilterService} from "../../features/data-table/data-table-filte
 import {ListPageComponent} from "../../shared/list-page-component.class";
 import {TabNameService} from "../../services/tab-name.service";
 
-import {invoke, isEmpty, defer} from 'lodash';
+import {invoke, isEmpty, defer, unset, cloneDeep} from 'lodash';
 import moment from 'moment';
 import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
@@ -12,6 +12,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
+import {Identity} from "../../models/identity";
+
 
 @Component({
   selector: 'lib-identities',
@@ -22,11 +24,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
-  selectedIdentity: any = {};
+  selectedIdentity: any = new Identity();
   dialogRef: any;
+  isLoading = false;
+  identityRoleAttributes: any[] = [];
 
   constructor(
-      svc: IdentitiesPageService,
+      public override svc: IdentitiesPageService,
       filterService: DataTableFilterService,
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
@@ -42,13 +46,16 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.zacWrapperService.zitiUpdated.subscribe(() => {
       this.refreshData();
     });
+    this.getIdentityRoleAttributes();
     super.ngOnInit();
   }
 
   headerActionClicked(action: string) {
-
     switch(action) {
       case 'add':
+        this.openUpdate();
+        break;
+      case 'edit':
         this.openUpdate();
         break;
       case 'delete':
@@ -63,22 +70,36 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     }
   }
 
-  closeModal() {
+  closeModal(event?) {
     this.modalOpen = false;
+    if(event?.refresh) {
+      this.refreshData();
+      this.getIdentityRoleAttributes();
+    }
   }
 
-  private openUpdate() {
+  private openUpdate(item?: any) {
+    if (item) {
+      this.selectedIdentity = item;
+      this.selectedIdentity.badges = [];
+      if (this.selectedIdentity.hasApiSession || this.selectedIdentity.hasEdgeRouterConnection) {
+        this.selectedIdentity.badges.push({label: 'Online', class: 'online', circle: 'true'});
+      } else {
+        this.selectedIdentity.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+      }
+      if (this.selectedIdentity.enrollment?.ott) {
+        this.selectedIdentity.badges.push({label: 'Unregistered', class: 'unreg'});
+      }
+      this.selectedIdentity.moreActions = [
+        {name: 'open-metrics', label: 'Open Metrics'},
+        {name: 'dial-logs', label: 'Dial Logs'},
+        {name: 'dial-logs', label: 'View Events'},
+      ];
+      unset(this.selectedIdentity, '_links');
+    } else {
+      this.selectedIdentity = new Identity();
+    }
     this.modalOpen = true;
-    /*
-    $(".adding").show();
-    $(".editing").hide();
-    window['modal'].show("AddModal");
-    $("body").addClass('updateModalOpen');
-    defer(() => {
-      $(".modal .close").click(() => {
-        $("body").removeClass('updateModalOpen');
-      });
-    });*/
   }
 
   private openBulkDelete(selectedItems: any[]) {
@@ -110,7 +131,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.itemToggled(event.item)
         break;
       case 'update':
-        this.editItem(event.item)
+        this.openUpdate(event.item);
         break;
       case 'create':
         this.openUpdate()
@@ -164,4 +185,9 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     window['page']['filterObject']['delete']([item.id]);
   }
 
+  getIdentityRoleAttributes() {
+    this.svc.getIdentitiesRoleAttributes().then((result) => {
+      this.identityRoleAttributes = result.data;
+    });
+  }
 }
