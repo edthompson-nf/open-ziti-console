@@ -96,11 +96,11 @@
                         [title]="'API Calls'"
                         [label]="'OPTIONAL'"
                 >
-                    <div class="form-group-row">
+                    <div class="form-row">
                         <input class="form-field-input" [value]="apiCallURL"/>
                         <div class="icon-copy copy" (click)="copyToClipboard(apiCallURL)"></div>
                     </div>
-                    <lib-json-view *ngIf="formData" [(data)]="apiData"></lib-json-view>
+                    <lib-json-view *ngIf="formData" [(data)]="apiData" [readOnly]="true"></lib-json-view>
                 </lib-form-field-container>
             </div>
         </div>

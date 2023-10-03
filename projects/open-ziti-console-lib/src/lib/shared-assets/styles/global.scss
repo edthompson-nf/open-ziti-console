@@ -142,6 +142,22 @@
   }
 }
 
+.form-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+}
+
 .form-field-input {
   &::placeholder {
     font-weight: 600;
@@ -182,7 +198,7 @@ lib-form-field-container {
 
 
 .icon-copy.copy {
-  right: 18px;
+  right: 10px;
   top: 5px;
   width: 30px;
   display: flex;
