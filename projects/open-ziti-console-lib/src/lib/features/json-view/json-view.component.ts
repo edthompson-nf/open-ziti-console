@@ -45,6 +45,11 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
         ajvOptions: {}
       });
     }
+    this.initEditor();
+    this.watchData();
+  }
+
+  initEditor() {
     this.content = {
       json: this.data
     };
@@ -59,6 +64,30 @@ export class JsonViewComponent implements AfterViewInit, OnChanges {
           if (this.content?.json) this.dataChange.emit(this.content.json);
         }
       }
+    });
+  }
+
+  updateEditor() {
+    this.content = {
+      json: this.data
+    };
+    this.editor.update(this.content);
+  }
+
+  watchData() {
+    const watchProperty = (self, prop, currentVal, callback) => {
+      _.delay(() => {
+        const newVal = self.data[prop];
+        if (newVal !== currentVal) {
+          callback();
+        }
+        watchProperty(self, prop, newVal, callback);
+      }, 100);
+    };
+    _.forEach(_.keys(this.data), (key) => {
+      watchProperty(this, key, this.data[key], (val) => {
+        this.updateEditor();
+      });
     });
   }
 

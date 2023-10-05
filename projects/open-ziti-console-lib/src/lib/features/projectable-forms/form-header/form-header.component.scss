@@ -14,6 +14,13 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+
+    &.badges-container {
+      justify-content: flex-start;
+      margin-left: 30px;
+      margin-top: 5px;
+      gap: 10px;
+    }
   }
 
   .form-title-container {
@@ -30,6 +37,13 @@
       font-size: 22px;
       color: var(--tableText);
       margin-left: 12px;
+      min-width: 130px;
+      text-wrap: nowrap;
+
+      &.title-name {
+        color: var(--primary);
+        margin-left: 5px;
+      }
     }
 
     .form-title-back-button {
@@ -64,7 +78,6 @@
     flex-direction: row;
     min-width: 400px;
     justify-content: flex-end;
-    gap: 20px;
 
     .save-button {
       max-width: 65px;
@@ -85,6 +98,8 @@
   border-radius: 5px;
   position: relative;
   cursor: pointer;
+  z-index: 999999;
+  margin-right: 20px;
 
   .more-actions-button {
     height: 100%;
@@ -155,6 +170,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-right: 20px;
 
   .form-header-toggle {
     display: flex;
@@ -169,6 +185,7 @@
     margin-right: 5px;
     cursor: pointer;
     position: relative;
+    margin-right: 5px;
 
     &:hover {
       filter: brightness(90%);
@@ -221,6 +238,35 @@
     &.toggle-option-selected {
       color: var(--tableText);
       cursor: default;
+    }
+  }
+}
+
+.header-badge-container {
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 30px;
+  padding: 0px 12px;
+  font-weight: 600;
+  color: var(--tableText);
+  background: var(--inputBorder);
+
+  &.online {
+    background-color: var(--greenShadow);
+  }
+  &.unreg {
+    background-color: var(--redShadow);
+    color: var(--red);
+  }
+  .badge-label {
+    margin-left: 5px;
+  }
+
+  .circle {
+    &.false {
+      background-color: var(--white);
     }
   }
 }

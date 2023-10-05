@@ -21,6 +21,48 @@ export class ZitiDataService {
 
   }
 
+  post(type, model) {
+    const apiVersions = this.settingsService.apiVersions;
+    const prefix = apiVersions["edge-management"].v1.path;
+    const url = this.settingsService.settings.selectedEdgeController;
+    const serviceUrl = url + prefix + "/" + type;
+
+    return firstValueFrom(this.httpClient.post(serviceUrl,
+        model, {})
+      .pipe(
+        catchError((err: any) => {
+            const error = "Server Not Accessible";
+            if (err.code !== "ECONNREFUSED") throw(err);
+            throw({error: error});
+        }),
+        map((result: any) => {
+          return result;
+        })
+      )
+    );
+  }
+
+  patch(type, model, id) {
+    const apiVersions = this.settingsService.apiVersions;
+    const prefix = apiVersions["edge-management"].v1.path;
+    const url = this.settingsService.settings.selectedEdgeController;
+    const serviceUrl = url + prefix + "/" + type + '/' + id;;
+
+    return firstValueFrom(this.httpClient.patch(serviceUrl,
+      model, {})
+      .pipe(
+        catchError((err: any) => {
+          const error = "Server Not Accessible";
+          if (err.code !== "ECONNREFUSED") throw(err);
+          throw({error: error});
+        }),
+        map((result: any) => {
+          return result;
+        })
+      )
+    );
+  }
+
   get(type: string, paging: any, filters: FilterObj[] = []) {
     const apiVersions = this.settingsService.apiVersions;
     const prefix = apiVersions["edge-management"].v1.path;

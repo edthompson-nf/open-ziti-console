@@ -16,7 +16,7 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     tabs: { url: string, label: string }[] ;
     formTitle = '';
     formSubtitle = '';
-
+    isLoading: boolean;
     showEditForm = false;
     showButtons = false;
     private schema: any;
@@ -81,4 +81,5 @@ export class ConfigurationsPageComponent extends ListPageComponent implements On
     onSchemaChange(schema: any) {
         this.schema = schema;
     }
+
 }
