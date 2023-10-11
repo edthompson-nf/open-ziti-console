@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
-
+import {isEmpty, defer} from "lodash";
 import {HttpClient} from "@angular/common/http";
 
 // @ts-ignore
@@ -28,7 +28,7 @@ const DEFAULTS = {
     },
     "from": "",
     "to": "",
-    "useNodeServer": true
+    "useNodeServer": false
 }
 
 @Injectable({
@@ -58,7 +58,7 @@ export class SettingsService {
         if (this.settings.port && !isNaN(this.settings.port)) this.port = this.settings.port;
         if (this.settings.portTLS && !isNaN(this.settings.portTLS)) this.portTLS = this.settings.portTLS;
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
-        if(this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
+        if(!this.settings.useNodeServer && this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
         else return Promise.resolve();
     }
 
@@ -100,13 +100,52 @@ export class SettingsService {
     }
 
     addContoller(name: string, url: string) {
-        if (name.trim().length == 0 || url.trim().length == 0) {
-            growler.error("Name and URL required");
+        if (this.settings.useNodeServer) {
+            this.nodeControllerSave(name, url);
         } else {
-            this.controllerSave(name, url);
+            if (name.trim().length == 0 || url.trim().length == 0) {
+                growler.error("Name and URL required");
+            } else {
+                this.controllerSave(name, url);
+            }
         }
     }
 
+    nodeControllerSave(name, controllerURL) {
+        const nodeServerURL = this.settings.protocol + '://' + this.settings.host + ':' + this.settings.port;
+        const apiURL = nodeServerURL + '/api/controllerSave';
+        this.httpClient.post(
+            apiURL,
+            { url: controllerURL, name: name },
+            {
+                headers: {
+                    "content-type": "application/json"
+                }
+            }
+        ).toPromise().then((result: any) => {
+            this.settings.selectedEdgeController = controllerURL;
+            this.settings.edgeControllers = result.edgeControllers;
+            this.set(this.settings);
+        });
+    }
+
+    clearNodeSession(): Promise<any>  {
+        const serverUrl = this.settings.protocol + '://' + this.settings.host + ':' +this.settings.port;
+        const apiUrl = serverUrl + '/login?logout=true';
+        const options = this.getHttpOptions();
+        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
+            if(isEmpty(resp?.error)) {
+                defer(() => {
+                    window.location.href = window.location.origin + (this.settings.useNodeServer ? '/ziti-console' : '') + '/login';
+                });
+            } else {
+                growler.error("Unknow error encountered when logging out");
+            }
+        }).catch((resp) => {
+            return false;
+        });
+    }
+ 
     initApiVersions(url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
@@ -179,5 +218,16 @@ export class SettingsService {
         }).catch(err => {
             growler.error(err);
         });
+    }
+
+    getHttpOptions() {
+        const options: any = {
+            headers: {
+                accept: '*',
+            },
+            params: {},
+            responseType: 'text' as const,
+        };
+        return options;
     }
 }

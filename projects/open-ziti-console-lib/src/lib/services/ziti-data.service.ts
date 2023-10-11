@@ -13,6 +13,15 @@ import _ from "lodash";
 })
 export class ZitiDataService {
 
+  DEFAULT_PAGING: any = {
+    filter: "",
+    noSearch: true,
+    order: "asc",
+    page: 1,
+    searchOn: "name",
+    sort: "name",
+    total: 100
+  }
 
   constructor(private logger: LoggerService,
               private growler: GrowlerService,
@@ -22,14 +31,22 @@ export class ZitiDataService {
   }
 
   post(type, model) {
-    const apiVersions = this.settingsService.apiVersions;
-    const prefix = apiVersions["edge-management"].v1.path;
-    const url = this.settingsService.settings.selectedEdgeController;
-    const serviceUrl = url + prefix + "/" + type;
+    let clientSub;
+    if (this.settingsService.settings.useNodeServer) {
+      const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+      const serviceUrl = nodeServerURL + '/api/dataSave';
+      const body = {paging: this.DEFAULT_PAGING, type: type, save: model};
+      clientSub = this.httpClient.post(serviceUrl,body,{});
+      this.httpClient.post(serviceUrl, body, {});
+    } else {
+      const apiVersions = this.settingsService.apiVersions;
+      const prefix = apiVersions["edge-management"].v1.path;
+      const url = this.settingsService.settings.selectedEdgeController;
+      const serviceUrl = url + prefix + "/" + type;
+    }
 
-    return firstValueFrom(this.httpClient.post(serviceUrl,
-        model, {})
-      .pipe(
+
+    return firstValueFrom(clientSub.pipe(
         catchError((err: any) => {
             const error = "Server Not Accessible";
             if (err.code !== "ECONNREFUSED") throw(err);
@@ -43,14 +60,22 @@ export class ZitiDataService {
   }
 
   patch(type, model, id) {
-    const apiVersions = this.settingsService.apiVersions;
-    const prefix = apiVersions["edge-management"].v1.path;
-    const url = this.settingsService.settings.selectedEdgeController;
-    const serviceUrl = url + prefix + "/" + type + '/' + id;;
+    let clientSub;
+    if (this.settingsService.settings.useNodeServer) {
+      const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+      const serviceUrl = nodeServerURL + '/api/dataSave';
+      const body = {paging: this.DEFAULT_PAGING, type: type, save: model, id: id};
+      clientSub = this.httpClient.post(serviceUrl,body,{});
+      this.httpClient.post(serviceUrl, body, {});
+    } else {
+      const apiVersions = this.settingsService.apiVersions;
+      const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+      const url = this.settingsService.settings.selectedEdgeController;
+      const serviceUrl = url + prefix + "/" + type + '/' + id;
+      this.httpClient.patch(serviceUrl, model, {});
+    }
 
-    return firstValueFrom(this.httpClient.patch(serviceUrl,
-      model, {})
-      .pipe(
+    return firstValueFrom(clientSub.pipe(
         catchError((err: any) => {
           const error = "Server Not Accessible";
           if (err.code !== "ECONNREFUSED") throw(err);
@@ -64,15 +89,22 @@ export class ZitiDataService {
   }
 
   get(type: string, paging: any, filters: FilterObj[] = []) {
-    const apiVersions = this.settingsService.apiVersions;
-    const prefix = apiVersions["edge-management"].v1.path;
-    const url = this.settingsService.settings.selectedEdgeController;
-    const urlFilter = this.getUrlFilter(paging);
-    const serviceUrl = url + prefix + "/" + type + urlFilter;
+    let clientSub;
+    if (this.settingsService.settings.useNodeServer) {
+      const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+      const serviceUrl = nodeServerURL + '/api/data';
+      const body = {paging: paging, type: type, filters: filters};
+      clientSub = this.httpClient.post(serviceUrl,body,{});
+    } else {
+      const apiVersions = this.settingsService.apiVersions;
+      const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+      const url = this.settingsService.settings.selectedEdgeController;
+      const urlFilter = this.getUrlFilter(paging);
+      const serviceUrl = url + prefix + "/" + type + urlFilter;
+      clientSub = this.httpClient.get(serviceUrl,{});
+    }
 
-    return firstValueFrom(this.httpClient.get(serviceUrl,
-        {})
-        .pipe(
+    return firstValueFrom(clientSub.pipe(
             catchError((err: any) => {
               const error = "Server Not Accessible";
               if (err.code != "ECONNREFUSED") throw({error: err.code});
@@ -98,14 +130,21 @@ export class ZitiDataService {
   }
 
   delete(type: string, id: string) {
-    const apiVersions = this.settingsService.apiVersions;
-    const prefix = apiVersions["edge-management"].v1.path;
-    const url = this.settingsService.settings.selectedEdgeController;
-    const serviceUrl = url + prefix + "/" + type + '/' + id;
+    let clientSub;
+    if (this.settingsService.settings.useNodeServer) {
+      const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+      const serviceUrl = nodeServerURL + '/api/delete';
+      const body = {paging: this.DEFAULT_PAGING, type: type, ids: [id]};
+      clientSub = this.httpClient.post(serviceUrl,body,{});
+    } else {
+      const apiVersions = this.settingsService.apiVersions;
+      const prefix = apiVersions["edge-management"].v1.path;
+      const url = this.settingsService.settings.selectedEdgeController;
+      const serviceUrl = url + prefix + "/" + type + '/' + id;
+      clientSub = this.httpClient.delete(serviceUrl, {});
+    }
 
-    return firstValueFrom(this.httpClient.delete(serviceUrl,
-        {})
-        .pipe(
+    return firstValueFrom(clientSub.pipe(
             catchError((err: any) => {
               const error = "Server Not Accessible";
               if (err.code != "ECONNREFUSED") throw({error: err.code});

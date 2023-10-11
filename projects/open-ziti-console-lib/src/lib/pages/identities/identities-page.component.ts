@@ -186,7 +186,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   getIdentityRoleAttributes() {
-    this.svc.getIdentitiesRoleAttributes().then((result) => {
+    this.svc.getIdentitiesRoleAttributes().then((result: any) => {
       this.identityRoleAttributes = result.data;
     });
   }

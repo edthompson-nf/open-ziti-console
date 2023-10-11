@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {map} from 'rxjs/operators';
 
 import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take} from 'rxjs';
 import {SettingsService} from "open-ziti-console-lib";
@@ -24,8 +25,17 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
         if (!req.url.startsWith("http")
             || req.url.indexOf("authenticate") > 0
-            || req.url.indexOf("version") > 0) {
-            return next.handle(req);
+            || req.url.indexOf("version") > 0
+            || this.settingsService.settings.useNodeServer
+        ) {
+            return next.handle(req).pipe(map((event: any) => {
+                if (this.settingsService.settings.useNodeServer) {
+                    if (event?.body?.error) {
+                        this.router.navigate['/login'];
+                    }
+                }
+                return event;
+            }));;
         } else {
             const session = this.settingsService.settings.session;
             const tokenExpirationDate = moment(session.expiresAt);
@@ -76,7 +86,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private addAuthToken(request: any) {
         const session = this.settingsService.settings.session;
-        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': 'application/json', accept: 'application/json'}});
+        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': 'application/json', accept: 'application/json'}, withCredentials: this.settingsService.settings.useNodeServer});
     }
 }
 

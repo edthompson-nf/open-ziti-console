@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import {SettingsService} from "../../../services/settings.service";
 
+import {cloneDeep} from 'lodash';
+import { Router } from '@angular/router';
+
+
 @Component({
   selector: 'lib-side-toolbar',
   templateUrl: './side-toolbar.component.html',
@@ -8,8 +12,7 @@ import {SettingsService} from "../../../services/settings.service";
 })
 export class SideToolbarComponent {
   hideNav:boolean | undefined;
-  constructor(private settingsService: SettingsService) {
-  }
+  constructor(private settingsService: SettingsService, private router: Router) {}
 
   ngOnInit() {
     this.settingsService.settingsChange.subscribe((results:any) => {
@@ -23,4 +26,16 @@ export class SideToolbarComponent {
     }
     this.settingsService.set(settings);
   }
+
+  doLogout() {
+    localStorage.removeItem('ziti.settings');
+    if (this.settingsService.useNodeServer) {
+      this.settingsService.clearNodeSession();
+    } else {
+      this.settingsService.settings.session.id = undefined;
+      this.settingsService.set(this.settingsService.settings);
+      this.router.navigate(['/login']);
+    }
+  }
+
 }

@@ -142,7 +142,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
   }
 
   getIdentityDataModel(isUpdate) {
-    const saveModel = new Identity();
+    const saveModel: any = new Identity();
     const modelProperties = keys(saveModel);
     modelProperties.forEach((prop) => {
       switch(prop) {
@@ -164,6 +164,9 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
           saveModel[prop] = this.formData[prop];
       }
     });
+    if (this.settingsService.settings.useNodeServer && isUpdate) {
+      saveModel.id = this.formData.id;
+    }
     return saveModel;
   }
 

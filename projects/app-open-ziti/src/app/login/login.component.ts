@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeUrl: string = '';
     edgeCreate = false;
     userLogin = false;
-    selectedEdgeController = '';
+    selectedEdgeController: any;
     edgeNameError = '';
     edgeUrlError = '';
     backToLogin = false;
@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if(this.selectedEdgeController) {
             context.set("serviceUrl", this.selectedEdgeController);
             const apiVersions = this.settingsService.apiVersions;
-            const prefix = apiVersions["edge-management"].v1.path;
+            const prefix = apiVersions && apiVersions["edge-management"]?.v1?.path || '';
             this.svc.login(
                 prefix,
                 this.selectedEdgeController,
@@ -93,7 +93,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.selectedEdgeController = settings.selectedEdgeController;
         if (settings.edgeControllers?.length > 0) {
             this.backToLogin = false;
-            this.edgeControllerList = settings.edgeControllers;
+            this.edgeControllerList = [];
+            settings.edgeControllers.forEach((controller) => {
+                this.edgeControllerList.push({name:controller.name, value: controller.url});
+            });
             this.reset();
         } else {
             this.backToLogin = true;

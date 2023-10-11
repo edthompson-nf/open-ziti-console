@@ -20,7 +20,7 @@ import {
 } from "open-ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
-import {SimpleZitiDomainControllerServic} from "./services/simple-ziti-domain-controller.service";
+import {SimpleZitiDomainControllerService} from "./services/simple-ziti-domain-controller.service";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDialogModule} from "@angular/material/dialog";
 import {URLS} from "./app-urls.constants";
@@ -48,7 +48,7 @@ import {LoggingInterceptor} from "./interceptors/logging.interceptor";
     ],
     exports: [],
     providers: [
-        {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerServic},
+        {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
         {provide: ZAC_WRAPPER_SERVICE, useClass: ZacWrapperService},
         {provide: ZITI_URLS, useValue: URLS},
         {provide: ZITI_NAVIGATOR, useValue: OPEN_ZITI_NAVIGATOR},
