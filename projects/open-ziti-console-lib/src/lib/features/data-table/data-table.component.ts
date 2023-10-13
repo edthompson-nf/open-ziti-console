@@ -11,6 +11,7 @@ import {TableColumnMenuComponent} from "./column-headers/table-column-menu/table
 import {TableCellSelectComponent} from "./cells/table-cell-select/table-cell-select.component";
 import {TableCellMenuComponent} from "./cells/table-cell-menu/table-cell-menu.component";
 import {DataTableService} from "./data-table.service";
+import {TableCellTokenComponent} from "./cells/table-cell-token/table-cell-token.component";
 
 @Component({
   selector: 'lib-data-table',
@@ -194,6 +195,7 @@ export class DataTableComponent implements OnChanges, OnInit {
     this.frameworkComponents = {
       cellSelectComponent: TableCellSelectComponent,
       cellMenuComponent: TableCellMenuComponent,
+      cellTokenComponent: TableCellTokenComponent,
       headerCellSelectComponent: TableColumnSelectComponent,
       headerHeaderMenuComponent: TableColumnMenuComponent,
       headerDefaultComponent: TableColumnDefaultComponent,

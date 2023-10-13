@@ -51,6 +51,7 @@ export class LoginService {
             }
         ).toPromise().then((result: any) => {
             if (result.success) {
+                this.settingsService.set(this.settingsService.settings);
                 this.router.navigate(['/dashboard']);
             } else {
                 const growlerData = new GrowlerModel(

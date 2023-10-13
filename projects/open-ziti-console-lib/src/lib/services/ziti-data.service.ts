@@ -37,14 +37,13 @@ export class ZitiDataService {
       const serviceUrl = nodeServerURL + '/api/dataSave';
       const body = {paging: this.DEFAULT_PAGING, type: type, save: model};
       clientSub = this.httpClient.post(serviceUrl,body,{});
-      this.httpClient.post(serviceUrl, body, {});
     } else {
       const apiVersions = this.settingsService.apiVersions;
       const prefix = apiVersions["edge-management"].v1.path;
       const url = this.settingsService.settings.selectedEdgeController;
       const serviceUrl = url + prefix + "/" + type;
+      clientSub = this.httpClient.post(serviceUrl, model, {});
     }
-
 
     return firstValueFrom(clientSub.pipe(
         catchError((err: any) => {
@@ -66,13 +65,12 @@ export class ZitiDataService {
       const serviceUrl = nodeServerURL + '/api/dataSave';
       const body = {paging: this.DEFAULT_PAGING, type: type, save: model, id: id};
       clientSub = this.httpClient.post(serviceUrl,body,{});
-      this.httpClient.post(serviceUrl, body, {});
     } else {
       const apiVersions = this.settingsService.apiVersions;
       const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
       const url = this.settingsService.settings.selectedEdgeController;
       const serviceUrl = url + prefix + "/" + type + '/' + id;
-      this.httpClient.patch(serviceUrl, model, {});
+      clientSub = this.httpClient.patch(serviceUrl, model, {});
     }
 
     return firstValueFrom(clientSub.pipe(

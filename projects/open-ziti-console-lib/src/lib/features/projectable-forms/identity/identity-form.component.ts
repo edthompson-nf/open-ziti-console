@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {ProjectableForm} from "../projectable-form.class";
 import {SettingsService} from "../../../services/settings.service";
 
@@ -7,17 +7,29 @@ import {ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {Identity} from "../../../models/identity";
+import { IdentityFormService } from './identity-form.service';
+import {MatDialogRef} from "@angular/material/dialog";
+import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 
 @Component({
   selector: 'lib-identity-form',
   templateUrl: './identity-form.component.html',
-  styleUrls: ['./identity-form.component.scss']
+  styleUrls: ['./identity-form.component.scss'],
+  providers: [
+    {
+      provide: MatDialogRef,
+      useValue: {}
+    }
+  ]
 })
-export class IdentityFormComponent extends ProjectableForm implements OnInit {
+export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges {
   @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  isEditing = false;
+  enrollmentExpiration: any;
+  jwt: any;
   isLoading = false;
   associatedServicePolicies: any = [];
   associatedServices: any = [];
@@ -30,11 +42,15 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
   showMore = false;
   errors: { name: string; msg: string }[];
   formView = 'simple';
-
+  enrollmentType = 'ott';
+  enrollmentCA;
+  enrollmentUPDB = '';
   settings: any = {};
 
   constructor(
       public settingsService: SettingsService,
+      public svc: IdentityFormService,
+      public identitiesService: IdentitiesPageService,
       private zitiService: ZitiDataService,
       private growlerService: GrowlerService
   ) {
@@ -46,6 +62,20 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.settings = results;
     });
+    this.jwt = this.identitiesService.getJWT(this.formData);
+    this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  get hasEnrolmentToken() {
+    return this.identitiesService.hasEnrolmentToken(this.formData);
+  }
+
+  get jwtExpired() {
+    return false;
   }
 
   headerActionRequested(action) {
@@ -62,6 +92,31 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
     }
   }
 
+  updateEnrollment() {
+    switch (this.enrollmentType) {
+      case 'ott':
+        this.formData.enrollment = {ott: true}
+        break;
+      case 'CA':
+        this.formData.enrollment = {ottca: this.enrollmentCA};
+        break;
+      case 'updb':
+        this.formData.enrollment = {updb: this.enrollmentUPDB};
+        break;
+      default:
+        this.formData.enrollment = {ott: true}
+        break;
+    }
+  }
+
+  save() {
+    this.isLoading = true;
+    this.svc.save(this.formData).then(() => {
+      this.closeModal(true);
+    }).finally(() => {
+      this.isLoading = false;
+    });
+  }
   get apiCallURL() {
     return this.settings.selectedEdgeController + '/edge/management/v1/identities' + (this.formData.id ? `/${this.formData.id}` : '');
   }
@@ -77,6 +132,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
           externalId: this.formData.externalId || '',
           defaultHostingCost: this.formData.defaultHostingCost || '',
           defaultHostingPrecedence: this.formData.defaultHostingPrecedence || '',
+          enrollment: this.formData.enrollment || {ott: true},
           tags: this.formData.tags || ''
     }
     return data;
@@ -104,70 +160,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
 
   closeModal(refresh = false): void {
     this.close.emit({refresh: refresh});
-  }
-
-  save(): void {
-    const isUpdate = !isEmpty(this.formData.id);
-    const data: any = this.getIdentityDataModel(isUpdate);
-    const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
-    this.isLoading = true;
-    svc('identities', data, this.formData.id).then((result) => {
-      const growlerData = new GrowlerModel(
-          'success',
-          'Success',
-          `Identity ${isUpdate ? 'Updated' : 'Created'}`,
-          `Successfully ${isUpdate ? 'updated' : 'created'} Identity: ${this.formData.name}`,
-      );
-      this.growlerService.show(growlerData);
-      this.closeModal(true);
-    }).catch((error) => {
-      let errorMessage;
-      if (error?.error?.error?.cause?.reason) {
-        errorMessage = error?.error?.error?.cause?.reason;
-      } else if (error?.error?.error?.message) {
-        errorMessage = error?.error?.error?.message;
-      } else {
-        errorMessage = 'An unknown error occurred';
-      }
-      const growlerData = new GrowlerModel(
-          'error',
-          'Error',
-          `Error Creating Identity`,
-          errorMessage,
-      );
-      this.growlerService.show(growlerData);
-    }).finally(() => {
-      this.isLoading = false;
-    });
-  }
-
-  getIdentityDataModel(isUpdate) {
-    const saveModel: any = new Identity();
-    const modelProperties = keys(saveModel);
-    modelProperties.forEach((prop) => {
-      switch(prop) {
-        case 'type':
-          if(isUpdate) {
-            saveModel[prop] = this.formData[prop].id;
-          } else {
-            saveModel[prop] = this.formData[prop];
-          }
-          break;
-        case 'enrollment':
-          if(isUpdate) {
-            saveModel[prop] = this.formData[prop];
-          } else {
-            unset(saveModel, 'enrollment');
-          }
-          break;
-        default:
-          saveModel[prop] = this.formData[prop];
-      }
-    });
-    if (this.settingsService.settings.useNodeServer && isUpdate) {
-      saveModel.id = this.formData.id;
-    }
-    return saveModel;
   }
 
   clear(): void {

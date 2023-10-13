@@ -3,6 +3,7 @@ import {SettingsService} from "../../../services/settings.service";
 
 import {cloneDeep} from 'lodash';
 import { Router } from '@angular/router';
+import { ZacWrapperService } from '../../wrappers/zac-wrapper.service';
 
 
 @Component({
@@ -12,19 +13,43 @@ import { Router } from '@angular/router';
 })
 export class SideToolbarComponent {
   hideNav:boolean | undefined;
-  constructor(private settingsService: SettingsService, private router: Router) {}
+  menuOpen = false;
+  sideBarInit = false;
+  constructor(private settingsService: SettingsService, private router: Router, private zacService: ZacWrapperService) {}
 
   ngOnInit() {
+    this.zacService.initZac();
+    this.zacService.initZACButtonListener();
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.hideNav = results.hideNav;
+      this.initSideBar();
     });
   }
+
+  initSideBar() {
+    if (this.sideBarInit) {
+      return;
+    }
+    window['header'].init();
+    window['locale'].init();
+    window['modal'].init();
+    this.sideBarInit = true;
+  }
+
   toggleNav() {
     this.hideNav = !this.hideNav;
     const settings = {
       ...this.settingsService.settings, hideNav: this.hideNav
     }
     this.settingsService.set(settings);
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu() {
+    this.menuOpen = false;
   }
 
   doLogout() {
@@ -37,5 +62,4 @@ export class SideToolbarComponent {
       this.router.navigate(['/login']);
     }
   }
-
 }

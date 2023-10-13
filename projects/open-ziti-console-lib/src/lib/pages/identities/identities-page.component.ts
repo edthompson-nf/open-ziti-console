@@ -13,6 +13,7 @@ import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/za
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {Identity} from "../../models/identity";
+import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 
 
 @Component({
@@ -146,7 +147,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.downloadJWT(event.item)
         break;
       case 'qr-code':
-        this.getQRCode(event.item)
+        this.showQRCode(event.item)
         break;
       default:
         break;
@@ -174,11 +175,20 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   downloadJWT(item: any) {
-    window['page']['getCert'](item);
+    const jwt = this.svc.getJWT(item);
+    this.svc.downloadJWT(jwt);
   }
 
-  getQRCode(item: any) {
-    window['page']['genQR'](item);
+  showQRCode(item: any) {
+    const data = {
+      jwt: this.svc.getJWT(item),
+      expiration: this.svc.getEnrollmentExpiration(item),
+      qrCodeSize: 300
+    };
+    this.dialogRef = this.dialogForm.open(QrCodeComponent, {
+      data: data,
+      autoFocus: false,
+    });
   }
 
   deleteItem(item: any) {

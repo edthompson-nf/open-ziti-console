@@ -37,8 +37,8 @@
                     >
                         <option value="">Select an Authentication Policy</option>
                         <option
-                                *ngFor="let policy of authPolicies"
-                                [value]="policy.id"
+                            *ngFor="let policy of authPolicies"
+                            [value]="policy.id"
                         >
                             {{ policy.name }}
                         </option>
@@ -47,6 +47,43 @@
                 </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
+                    <lib-form-field-container
+                        [title]="'Enrollment Type'"
+                        [title2]="enrollmentType === 'CA' ? 'CERTIFICATE AUTHORITY' : (enrollmentType === 'updb' ? 'UPDB USERNAME' : undefined)"
+                        [layout]="'row'"
+                        class="form-field-advanced"
+                    >
+                        <select
+                            id="EnrollmentType"
+                            class="form-field-dropdown"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentType"
+                            (change)="updateEnrollment()"
+                        >
+                            <option value="ott">One Time Token</option>
+                            <option value="CA">Certificate Authority</option>
+                            <option value="updb">UPDB</option>
+                        </select>
+                        <select
+                            id="CertAuthorities"
+                            class="form-field-dropdown"
+                            *ngIf="enrollmentType === 'CA'"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentCA"
+                            (change)="updateEnrollment()"
+                        ></select>
+                        <input
+                            *ngIf="enrollmentType === 'updb'"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentUPDB"
+                            (keyup)="updateEnrollment()"
+                            class="form-field-input"
+                            id="UPDBName"
+                            type="text"
+                            maxlength="500"
+                            placeholder="Enter a name"
+                        >
+                    </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Hosting Cost'"
                             [title2]="'Precedence'"
@@ -66,6 +103,15 @@
                 </div>
             </div>
             <div class="form-group-column two-fifths">
+                <lib-form-field-container
+                        *ngIf="hasEnrolmentToken"
+                        [showHeader]="false"
+                >
+                    <lib-qr-code
+                        [jwt]="jwt"
+                        [expiration]="enrollmentExpiration"
+                    ></lib-qr-code>
+                </lib-form-field-container>
                 <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Services'"

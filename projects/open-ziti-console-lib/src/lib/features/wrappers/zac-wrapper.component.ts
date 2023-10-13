@@ -3,6 +3,7 @@ import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "./zac-wrapper.service";
 import {delay, invoke, isEmpty, defer, set} from 'lodash';
 import {Subscription} from "rxjs";
 import {SettingsService} from "../../services/settings.service";
+import {LoggerService} from "../messaging/logger.service";
 
 import $ from 'jquery';
 
@@ -24,6 +25,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   constructor(
       @Inject(ZAC_WRAPPER_SERVICE) private wrapperService: ZacWrapperService,
       private settingsService: SettingsService,
+      private loggerService: LoggerService
   ) {
   }
 
@@ -49,7 +51,9 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
           }
         }
     });
-    this.initZACButtonListener();
+    defer(() => {
+      this.wrapperService.initZACButtonListener();
+    })
   }
 
   ngOnDestroy() {
@@ -78,29 +82,17 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
       scriptCopy.async = false;
       script.parentNode.replaceChild(scriptCopy, script);
     }
-    setTimeout(() => {
-      set(window, 'context.items', []);
-      set(window, 'context.watchers', []);
-      set(window, 'context.eventWatchers', []);
-      invoke(window, 'app.init');
-      this.loading = false;
-    }, 50);
-  }
-
-  initZACButtonListener() {
-    $('.action.icon-plus.icon-add, #HelpButton').off('click.zacAddButtonClicked');
-    $('.action.icon-plus.icon-add, #HelpButton').on('click.zacAddButtonClicked', (event) => {
-      if ($(event.currentTarget).hasClass('icon-minus')) {
-        return;
+    defer(() => {
+      try{
+        set(window, 'context.items', []);
+        set(window, 'context.watchers', []);
+        set(window, 'context.eventWatchers', []);
+        invoke(window, 'app.init');
+      }catch(err) {
+        this.loggerService.error('error initializing page scripts');
+      } finally {
+        this.loading = false;
       }
-      $('body').addClass('updateModalOpen');
     });
-    $('.modal .close, .modal .closer').off('click.zacCloseButtonClicked');
-    $('.modal .close, .modal .closer').on('click.zacCloseButtonClicked', () => {
-      $('body').removeClass('updateModalOpen');
-    });
-    delay(() => {
-      this.initZACButtonListener();
-    }, 50);
   }
 }

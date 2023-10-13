@@ -84,6 +84,7 @@ export class ZacWrapperService {
     subscription: Subscription = new Subscription();
     page = '';
     scriptsAdded = false;
+    zacInit = false;
 
     constructor(
         @Inject(ZITI_DOMAIN_CONTROLLER) private zitiDomainController: ZitiDomainControllerService,
@@ -92,10 +93,14 @@ export class ZacWrapperService {
         private http: HttpClient,
         private router: Router,
     ) {
+        this.getCurrentPage(this.router.url);
         this.initRouteListener();
     }
 
     initZac() {
+        if (this.zacInit) {
+            return;
+        }
         const appInit = get(window, 'app.init');
         this.settingsService.settingsChange.subscribe((settings) => {
             if (!this.settingsService.useNodeServer) {
@@ -105,129 +110,135 @@ export class ZacWrapperService {
             }
         });
         this.initZacListeners();
+        this.zacInit = true;
     }
 
     private initZacListeners() {
         set(window, 'header.goto', (event: any) => {
             const url = $(event.currentTarget).data("go");
-            let route = '';
-            switch (url) {
-                case '':
-                    this.page = 'index';
-                    route = this.URLS.ZITI_DASHBOARD;
-                    break;
-                case '/identities':
-                case 'identities':
-                    this.page = 'identities';
-                    route = this.URLS.ZITI_IDENTITIES;
-                    break;
-                case '/attributes':
-                case 'attributes':
-                    this.page = 'attributes';
-                    route = this.URLS.ZITI_ATTRIBUTES;
-                    break;
-                case '/jwt-signers':
-                case 'jwt-signers':
-                    this.page = 'jwt-signers';
-                    route = this.URLS.ZITI_JWT_SIGNERS;
-                    break;
-                case '/services':
-                case 'services':
-                    this.page = 'services';
-                    route = this.URLS.ZITI_SERVICES;
-                    break;
-                case '/routers':
-                case 'routers':
-                    this.page = 'routers';
-                    route = this.URLS.ZITI_ROUTERS;
-                    break;
-                case '/transit-routers':
-                case 'transit-routers':
-                    this.page = 'transit-routers';
-                    route = this.URLS.ZITI_TRANSIT_ROUTERS;
-                    break;
-                case '/configs':
-                case 'configs':
-                    this.page = 'configs';
-                    route = this.URLS.ZITI_CONFIGS;
-                    break;
-                case '/config-types':
-                case 'config-types':
-                    this.page = 'config-types';
-                    route = this.URLS.ZITI_CONFIG_TYPES;
-                    break;
-                case '/recipes':
-                case 'recipes':
-                    this.page = 'recipes';
-                    route = this.URLS.ZITI_RECIPES;
-                    break;
-                case '/terminators':
-                case 'terminators':
-                    this.page = 'terminators';
-                    route = this.URLS.ZITI_TERMINATORS;
-                    break;
-                case '/config-terminators':
-                case 'config-terminators':
-                    this.page = 'config-terminators';
-                    route = this.URLS.ZITI_CONFIG_TERMINATORS;
-                    break;
-                case '/auth-policies':
-                case 'auth-policies':
-                    this.page = 'auth-policies';
-                    route = this.URLS.ZITI_AUTH_POLICIES;
-                    break;
-                case '/service-policies':
-                case 'service-policies':
-                    this.page = 'service-policies';
-                    route = this.URLS.ZITI_SERVICE_POLICIES;
-                    break;
-                case '/router-policies':
-                case 'router-policies':
-                    this.page = 'router-policies';
-                    route = this.URLS.ZITI_ROUTER_POLICIES;
-                    break;
-                case '/service-router-policies':
-                case 'service-router-policies':
-                    this.page = 'service-router-policies';
-                    route = this.URLS.ZITI_SERVICE_ROUTER_POLICIES;
-                    break;
-                case '/posture-checks':
-                case 'posture-checks':
-                    this.page = 'posture-checks';
-                    route = this.URLS.ZITI_POSTURE_CHECKS;
-                    break;
-                case '/cas':
-                case 'cas':
-                    this.page = 'cas';
-                    route = this.URLS.ZITI_CERT_AUTHORITIES;
-                    break;
-                case '/sessions':
-                case 'sessions':
-                    this.page = 'sessions';
-                    route = this.URLS.ZITI_SESSIONS;
-                    break;
-                case '/servers':
-                case 'servers':
-                    this.page = 'servers';
-                    route = this.URLS.ZITI_SERVERS;
-                    break;
-                case '/login':
-                case 'login':
-                    this.page = 'login';
-                    route = this.URLS.ZAC_LOGIN;
-                    break;
-                case '/organization':
-                case 'organization':
-                    this.page = 'organization';
-                    route = this.URLS.ZITI_CUSTOM_FIELDS;
-                    break;
-                default:
-                    this.page = 'index';
-                    route = this.URLS.ZITI_DASHBOARD;
-                    break;
-            }
+            let route = this.getCurrentPage(url);
             this.router.navigate([route]);
         });
+    }
+
+    private getCurrentPage(url) {
+        let route = '';
+        switch (url) {
+            case '':
+                this.page = 'index';
+                route = this.URLS.ZITI_DASHBOARD;
+                break;
+            case '/identities':
+            case 'identities':
+                this.page = 'identities';
+                route = this.URLS.ZITI_IDENTITIES;
+                break;
+            case '/attributes':
+            case 'attributes':
+                this.page = 'attributes';
+                route = this.URLS.ZITI_ATTRIBUTES;
+                break;
+            case '/jwt-signers':
+            case 'jwt-signers':
+                this.page = 'jwt-signers';
+                route = this.URLS.ZITI_JWT_SIGNERS;
+                break;
+            case '/services':
+            case 'services':
+                this.page = 'services';
+                route = this.URLS.ZITI_SERVICES;
+                break;
+            case '/routers':
+            case 'routers':
+                this.page = 'routers';
+                route = this.URLS.ZITI_ROUTERS;
+                break;
+            case '/transit-routers':
+            case 'transit-routers':
+                this.page = 'transit-routers';
+                route = this.URLS.ZITI_TRANSIT_ROUTERS;
+                break;
+            case '/configs':
+            case 'configs':
+                this.page = 'configs';
+                route = this.URLS.ZITI_CONFIGS;
+                break;
+            case '/config-types':
+            case 'config-types':
+                this.page = 'config-types';
+                route = this.URLS.ZITI_CONFIG_TYPES;
+                break;
+            case '/recipes':
+            case 'recipes':
+                this.page = 'recipes';
+                route = this.URLS.ZITI_RECIPES;
+                break;
+            case '/terminators':
+            case 'terminators':
+                this.page = 'terminators';
+                route = this.URLS.ZITI_TERMINATORS;
+                break;
+            case '/config-terminators':
+            case 'config-terminators':
+                this.page = 'config-terminators';
+                route = this.URLS.ZITI_CONFIG_TERMINATORS;
+                break;
+            case '/auth-policies':
+            case 'auth-policies':
+                this.page = 'auth-policies';
+                route = this.URLS.ZITI_AUTH_POLICIES;
+                break;
+            case '/service-policies':
+            case 'service-policies':
+                this.page = 'service-policies';
+                route = this.URLS.ZITI_SERVICE_POLICIES;
+                break;
+            case '/router-policies':
+            case 'router-policies':
+                this.page = 'router-policies';
+                route = this.URLS.ZITI_ROUTER_POLICIES;
+                break;
+            case '/service-router-policies':
+            case 'service-router-policies':
+                this.page = 'service-router-policies';
+                route = this.URLS.ZITI_SERVICE_ROUTER_POLICIES;
+                break;
+            case '/posture-checks':
+            case 'posture-checks':
+                this.page = 'posture-checks';
+                route = this.URLS.ZITI_POSTURE_CHECKS;
+                break;
+            case '/cas':
+            case 'cas':
+                this.page = 'cas';
+                route = this.URLS.ZITI_CERT_AUTHORITIES;
+                break;
+            case '/sessions':
+            case 'sessions':
+                this.page = 'sessions';
+                route = this.URLS.ZITI_SESSIONS;
+                break;
+            case '/servers':
+            case 'servers':
+                this.page = 'servers';
+                route = this.URLS.ZITI_SERVERS;
+                break;
+            case '/login':
+            case 'login':
+                this.page = 'login';
+                route = this.URLS.ZAC_LOGIN;
+                break;
+            case '/organization':
+            case 'organization':
+                this.page = 'organization';
+                route = this.URLS.ZITI_CUSTOM_FIELDS;
+                break;
+            default:
+                this.page = 'index';
+                route = this.URLS.ZITI_DASHBOARD;
+                break;
+        }
+        return route;
     }
 
     private initRouteListener() {
@@ -583,6 +594,20 @@ export class ZacWrapperService {
         }
         return prom.catch((result) => {
             return result?.error;
+        });
+    }
+
+    initZACButtonListener() {
+        $('.action.icon-plus.icon-add, #HelpButton').off('click.zacAddButtonClicked');
+        $('.action.icon-plus.icon-add, #HelpButton').on('click.zacAddButtonClicked', (event) => {
+            if ($(event.currentTarget).hasClass('icon-minus')) {
+                return;
+            }
+            $('body').addClass('updateModalOpen');
+        });
+        $('.modal .close, .modal .closer').off('click.zacCloseButtonClicked');
+        $('.modal .close, .modal .closer').on('click.zacCloseButtonClicked', () => {
+            $('body').removeClass('updateModalOpen');
         });
     }
 
