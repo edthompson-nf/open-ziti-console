@@ -5,7 +5,7 @@ import {isEmpty} from "lodash";
 export type FilterObj = {
     filterName: string;
     columnId: string;
-    value: string;
+    value: any;
     label: string;
 }
 
@@ -21,7 +21,7 @@ export class DataTableFilterService {
     constructor() {
     }
 
-    upsertFilter(filterObj: FilterObj) {
+    updateFilter(filterObj: FilterObj) {
         if(isEmpty(filterObj.value)) this.removeFilter(filterObj);
         else {
             let isFound = false;

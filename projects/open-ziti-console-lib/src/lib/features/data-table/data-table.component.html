@@ -57,19 +57,19 @@
             id="HeaderFilterOptions"
     >
         <div (click)="applyFilter($event, filter)" *ngFor="let filter of filterOptions" class="tActionRow" [ngClass]="{'has-icon': filter.icon}" [id]="filter.columnId">
-        <span *ngIf="filter.bubbleClass" [ngClass]="filter.bubbleClass" class="bubble">
-            <svg *ngIf="filter.showLoader" class="circular" viewBox="25 25 50 50">
-                <circle
-                        class="path"
-                        cx="50"
-                        cy="50"
-                        fill="none"
-                        r="20"
-                        stroke-miterlimit="10"
-                        stroke-width="3"
-                ></circle>
-            </svg>
-        </span>
+            <span *ngIf="filter.bubbleClass" [ngClass]="filter.bubbleClass" class="bubble">
+                <svg *ngIf="filter.showLoader" class="circular" viewBox="25 25 50 50">
+                    <circle
+                            class="path"
+                            cx="50"
+                            cy="50"
+                            fill="none"
+                            r="20"
+                            stroke-miterlimit="10"
+                            stroke-width="3"
+                    ></circle>
+                </svg>
+            </span>
             <span *ngIf="filter.icon" class="os-icon {{filter.icon}}"></span>
             {{ filter.label }}
         </div>

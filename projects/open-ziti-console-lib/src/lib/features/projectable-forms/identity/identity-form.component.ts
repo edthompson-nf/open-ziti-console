@@ -1,8 +1,19 @@
-import {Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  ElementRef,
+  AfterViewInit
+} from '@angular/core';
 import {ProjectableForm} from "../projectable-form.class";
 import {SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, unset, keys} from 'lodash';
+import {isEmpty, forEach, delay, unset, keys, cloneDeep, isEqual} from 'lodash';
 import {ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
@@ -22,17 +33,21 @@ import {IdentitiesPageService} from "../../../pages/identities/identities-page.s
     }
   ]
 })
-export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges {
+export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
   @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
+  @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
 
+  initData: any = {};
   isEditing = false;
   enrollmentExpiration: any;
   jwt: any;
   isLoading = false;
   associatedServicePolicies: any = [];
+  associatedServicePolicyNames: any = [];
   associatedServices: any = [];
+  associatedServiceNames: any = [];
   servicesLoading = false;
   servicePoliciesLoading = false;
   authPolicies: any = [
@@ -40,13 +55,14 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   ];
 
   showMore = false;
-  errors: { name: string; msg: string }[];
+  errors: { name: string; msg: string }[] = [];
   formView = 'simple';
   enrollmentType = 'ott';
   enrollmentCA;
   enrollmentUPDB = '';
   settings: any = {};
 
+  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
       public settingsService: SettingsService,
       public svc: IdentityFormService,
@@ -64,10 +80,39 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     });
     this.jwt = this.identitiesService.getJWT(this.formData);
     this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+    this.getAssociatedServices();
+    this.getAssociatedServicePolicies();
+    this.initData = cloneDeep(this.formData);
+    this.watchData();
+  }
+
+  override ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.nameFieldInput.nativeElement.focus();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  getAssociatedServices() {
+    this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
+      console.log(result);
+      this.associatedServices = result.data;
+      this.associatedServiceNames = this.associatedServices.map((svc) => {
+        return svc.name;
+      });
+    });
+  }
+
+  getAssociatedServicePolicies() {
+    this.zitiService.getSubdata('identities', this.formData.id, 'service-policies').then((result: any) => {
+      console.log(result);
+      this.associatedServicePolicies = result.data;
+      this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+        return policy.name;
+      });
+    });
   }
 
   get hasEnrolmentToken() {
@@ -110,13 +155,25 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   save() {
+    if(!this.validate()) {
+      return;
+    }
     this.isLoading = true;
-    this.svc.save(this.formData).then(() => {
-      this.closeModal(true);
+    this.svc.save(this.formData).then((result) => {
+      this.closeModal(true, true);
     }).finally(() => {
       this.isLoading = false;
     });
   }
+
+  validate() {
+    this.errors = [];
+    if (isEmpty(this.formData.name)) {
+      this.errors['name'] = true;
+    }
+    return isEmpty(this.errors);
+  }
+
   get apiCallURL() {
     return this.settings.selectedEdgeController + '/edge/management/v1/identities' + (this.formData.id ? `/${this.formData.id}` : '');
   }
@@ -158,11 +215,25 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.growlerService.show(growlerData);
   }
 
-  closeModal(refresh = false): void {
+  closeModal(refresh = false, ignoreChanges = false): void {
+    if (!ignoreChanges && this._dataChange && !confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?')) {
+      return;
+    }
     this.close.emit({refresh: refresh});
   }
 
   clear(): void {
   }
 
+  _dataChange = false;
+  watchData() {
+    delay(() => {
+      const dataChange = !isEqual(this.initData, this.formData);
+      if (dataChange !== this._dataChange) {
+        this.dataChange.emit(dataChange);
+      }
+      this._dataChange = dataChange;
+      this.watchData();
+    }, 100);
+  }
 }

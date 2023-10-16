@@ -127,6 +127,29 @@ export class ZitiDataService {
     );
   }
 
+  getSubdata(entityType: string, id: any, dataType: string) {
+    let clientSub;
+    if (this.settingsService.settings.useNodeServer) {
+      const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+      const serviceUrl = nodeServerURL + '/api/subdata';
+      const body = {url:`./${entityType}/${id}/${dataType}`, name: entityType, type: dataType };
+      clientSub = this.httpClient.post(serviceUrl, body, {});
+    } else {
+      const apiVersions = this.settingsService.apiVersions;
+      const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+      const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}`;
+      clientSub = this.httpClient.get(url, {});
+    }
+    return firstValueFrom(clientSub.pipe(
+            catchError((err: any) => {
+              const error = "Server Not Accessible";
+              if (err.code != "ECONNREFUSED") throw({error: err.code});
+              throw({error: error});
+            })
+        )
+    );
+  }
+
   delete(type: string, id: string) {
     let clientSub;
     if (this.settingsService.settings.useNodeServer) {

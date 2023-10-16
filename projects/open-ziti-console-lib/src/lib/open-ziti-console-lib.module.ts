@@ -59,6 +59,8 @@ import { JsonViewComponent } from './features/json-view/json-view.component';
 import { TagSelectorComponent } from './features/tag-selector/tag-selector.component';
 import { QrCodeComponent } from './features/qr-code/qr-code.component';
 import { TableCellTokenComponent } from './features/data-table/cells/table-cell-token/table-cell-token.component';
+import {GrowlerModule} from "./features/messaging/growler.module";
+import {DEACTIVATE_GUARD, DeactivateGuardService} from "./services/deactivate-guard.service";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -98,7 +100,6 @@ export function playerFactory() {
         HiddenColumnsBarComponent,
         FilterBarComponent,
         ExtendableComponent,
-        GrowlerComponent,
         ConfirmComponent,
         NoItemsComponent,
         SideModalComponent,
@@ -145,10 +146,10 @@ export function playerFactory() {
         ConfigurationFormComponent,
         IdentitiesPageComponent,
         ZacRoutingModule,
-        GrowlerComponent,
         SideModalComponent,
         IdentityFormComponent,
-        LoadingIndicatorComponent
+        LoadingIndicatorComponent,
+        GrowlerModule
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
@@ -159,6 +160,7 @@ export function playerFactory() {
             deps: [Injector],
             multi: true
         },
+        {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService}
     ],
 })
 export class OpenZitiConsoleLibModule {

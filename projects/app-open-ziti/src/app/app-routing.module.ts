@@ -6,7 +6,8 @@ import {LoginComponent} from "./login/login.component";
 import {
   ConfigurationsPageComponent,
   ZacWrapperComponent,
-  IdentitiesPageComponent
+  IdentitiesPageComponent,
+  DeactivateGuardService
 } from "open-ziti-console-lib";
 import {URLS} from "./app-urls.constants";
 
@@ -39,6 +40,7 @@ const routes: Routes = [
     path: 'identities',
     component: IdentitiesPageComponent,
     canActivate: [authenticationGuard],
+    canDeactivate: [DeactivateGuardService],
   },
   {
     path: 'jwt-signers',

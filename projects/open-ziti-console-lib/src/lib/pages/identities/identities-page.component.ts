@@ -29,6 +29,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   dialogRef: any;
   isLoading = false;
   identityRoleAttributes: any[] = [];
+  formDataChanged = false;
 
   constructor(
       public override svc: IdentitiesPageService,
@@ -77,6 +78,10 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       this.refreshData();
       this.getIdentityRoleAttributes();
     }
+  }
+
+  dataChanged(event) {
+    this.formDataChanged = event;
   }
 
   private openUpdate(item?: any) {
@@ -199,5 +204,12 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.svc.getIdentitiesRoleAttributes().then((result: any) => {
       this.identityRoleAttributes = result.data;
     });
+  }
+
+  canDeactivate() {
+    if (this.formDataChanged && this.modalOpen) {
+      return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+    }
+    return true;
   }
 }

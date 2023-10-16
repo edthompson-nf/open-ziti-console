@@ -1,4 +1,7 @@
-<div class="projectable-form-wrapper">
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save()"
+     (keyup.escape)="closeModal(false)"
+>
     <div class="identity-form-container">
         <lib-form-header
             [data]="formData"
@@ -11,7 +14,14 @@
         <div class="form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
-                    <input class="form-field-input" placeholder="Name this identity" [(ngModel)]="formData.name"/>
+                    <input
+                        class="form-field-input"
+                        placeholder="Name this identity"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                        autofocus
+                        #nameFieldInput
+                    />
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'Select or create Identity attributes'"
@@ -115,27 +125,27 @@
                 <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Services'"
-                        [count]="0"
+                        [count]="associatedServices.length"
                         [helpText]="'Preview list of all services that this Identity is associated with.'"
                 >
                     <lib-preview-list
                         (itemSelected)="serviceSelected($event)"
                         [clickable]="true"
                         [isLoading]="servicesLoading"
-                        [allNames]="associatedServices"
+                        [allNames]="associatedServiceNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Service Policies'"
-                        [count]="0"
+                        [count]="associatedServicePolicies.length"
                         [helpText]="'Preview list of all service policies that this Identity is associated with.'"
                 >
                     <lib-preview-list
                         (itemSelected)="serviceSelected($event)"
                         [clickable]="true"
                         [isLoading]="servicePoliciesLoading"
-                        [allNames]="associatedServicePolicies"
+                        [allNames]="associatedServicePolicyNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container

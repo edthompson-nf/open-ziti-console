@@ -31,12 +31,14 @@ export class IdentityFormService {
                 `Successfully ${isUpdate ? 'updated' : 'created'} Identity: ${formData.name}`,
             );
             this.growlerService.show(growlerData);
-        }).catch((error) => {
+        }).catch((resp) => {
             let errorMessage;
-            if (error?.error?.error?.cause?.reason) {
-                errorMessage = error?.error?.error?.cause?.reason;
-            } else if (error?.error?.error?.message) {
-                errorMessage = error?.error?.error?.message;
+            if (resp?.error?.error?.cause?.message) {
+                errorMessage = resp?.error?.error?.cause?.message;
+            } else if (resp?.error?.error?.cause?.reason) {
+                errorMessage = resp?.error?.error?.cause?.reason;
+            }else if (resp?.error?.message) {
+                errorMessage = resp?.error?.message;
             } else {
                 errorMessage = 'An unknown error occurred';
             }
@@ -47,6 +49,7 @@ export class IdentityFormService {
                 errorMessage,
             );
             this.growlerService.show(growlerData);
+            throw resp;
         })
     }
 

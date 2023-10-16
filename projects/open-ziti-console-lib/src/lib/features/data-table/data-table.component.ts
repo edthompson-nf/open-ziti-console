@@ -12,6 +12,7 @@ import {TableCellSelectComponent} from "./cells/table-cell-select/table-cell-sel
 import {TableCellMenuComponent} from "./cells/table-cell-menu/table-cell-menu.component";
 import {DataTableService} from "./data-table.service";
 import {TableCellTokenComponent} from "./cells/table-cell-token/table-cell-token.component";
+import {DataTableFilterService, FilterObj} from "./data-table-filter.service";
 
 @Component({
   selector: 'lib-data-table',
@@ -163,7 +164,7 @@ export class DataTableComponent implements OnChanges, OnInit {
 
   @ViewChild('calendar', { static: false }) calendar: any;
 
-  constructor(public svc: DataTableService) {
+  constructor(public svc: DataTableService, private tableFilterService: DataTableFilterService) {
     this.resizeGridColumnsDebounced = _.debounce(this.svc.resizeGridColumns.bind(this.svc), 20, {leading: true});
     this._refreshCellsDebounced = _.debounce(this.svc.refreshCells.bind(this.svc), 50);
     this._onColumnsResizedDebounced = _.debounce(this.svc.onColumnsResized.bind(this.svc), 400);
@@ -338,11 +339,18 @@ export class DataTableComponent implements OnChanges, OnInit {
     if (range !== 'custom') {
       this.dateValue = [startDate.toDate(), endDate.toDate()];
     }
-    this.applyFilter({}, {columnId: this.dateTimeColumn, value: [startDateRange, endDateRange], label: label, filterName: 'Last Seen'})
+    const filterObj: FilterObj = {
+      columnId: this.dateTimeColumn,
+      value: [startDateRange, endDateRange],
+      label: label,
+      filterName: 'Last Seen'
+    };
+
+    this.tableFilterService.updateFilter(filterObj);
   }
 
-  applyFilter(temp1, temp2) {
-
+  applyFilter(event, filter) {
+    this.tableFilterService.updateFilter(filter);
   }
 
   closeHeaderFilter(event): void {

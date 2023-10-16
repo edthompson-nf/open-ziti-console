@@ -12,11 +12,14 @@ import {
     OpenZitiConsoleLibModule,
     SettingsService,
     ZacWrapperService,
+    GrowlerModule,
+    DeactivateGuardService,
     ZAC_WRAPPER_SERVICE,
     ZITI_DOMAIN_CONTROLLER,
     ZITI_NAVIGATOR,
     ZITI_TAB_OVERRIDES,
-    ZITI_URLS
+    ZITI_URLS,
+    DEACTIVATE_GUARD
 } from "open-ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -44,6 +47,7 @@ import {LoggingInterceptor} from "./interceptors/logging.interceptor";
         HttpClientModule,
         AppRoutingModule,
         OpenZitiConsoleLibModule,
+        GrowlerModule,
         LoggerModule.forRoot({level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR}),
     ],
     exports: [],
@@ -55,7 +59,8 @@ import {LoggingInterceptor} from "./interceptors/logging.interceptor";
         {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},
         {provide: HTTP_INTERCEPTORS, useClass: ZitiApiInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true}
+        {provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true},
+        {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService}
     ],
     bootstrap: [AppComponent]
 })
