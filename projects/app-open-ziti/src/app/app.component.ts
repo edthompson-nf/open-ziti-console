@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {SettingsService} from "open-ziti-console-lib";
-import { SimpleZitiDomainControllerService } from './services/simple-ziti-domain-controller.service';
+import {Component, OnInit, Inject} from '@angular/core';
+import {SettingsServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER} from "open-ziti-console-lib";
+import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,8 +16,8 @@ export class AppComponent implements OnInit {
     displayTool = true;
     showModal = false;
     loading = true;
-    useNodeServer = false;
-    constructor(private settingsService: SettingsService, private zitiControllerService: SimpleZitiDomainControllerService, private router: Router) {}
+
+    constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass, @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService, private router: Router) {}
 
     ngOnInit() {
         this.loading = true;
@@ -25,20 +25,14 @@ export class AppComponent implements OnInit {
             this.version = results.version;
             this.displayNav = !results.hideNav ?? true;
             this.displayTool = !results.hideTool ?? true;
-            if (results.useNodeServer) {
-                this.checkForValidNodeSession().finally(() => {
-                    this.loading = false;
-                });
-            } else {
-                this.isAuthorized = results.session?.id;
-                this.loading = false;
-            }
+            this.isAuthorized = results.session?.id;
+            this.loading = false;
+            this.checkForValidNodeSession();
         });
     }
- 
+
     async checkForValidNodeSession() {
-        const sessionValid: boolean = await this.zitiControllerService.hasNodeSession();
-        if (sessionValid) {
+        if (this.settingsService.hasSession()) {
             this.isAuthorized = true;
             return Promise.resolve();
         } else {

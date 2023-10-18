@@ -82,6 +82,32 @@
                 "vendor": true
               },
               "namedChunks": true
+            },
+            "nodeIntegration": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/app-open-ziti/src/app/environments/environment.ts",
+                  "with": "projects/app-open-ziti/src/app/environments/environment.node.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "16mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
             }
           },
           "defaultConfiguration": "production"

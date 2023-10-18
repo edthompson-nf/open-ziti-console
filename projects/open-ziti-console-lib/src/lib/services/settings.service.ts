@@ -1,8 +1,11 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Inject, InjectionToken} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {isEmpty, defer} from "lodash";
-import {HttpClient} from "@angular/common/http";
+import {HttpBackend, HttpClient} from "@angular/common/http";
+import {SettingsServiceClass} from "./settings-service.class";
+
+export const SETTINGS_SERVICE = new InjectionToken<SettingsService>('SETTINGS_SERVICE');
 
 // @ts-ignore
 const {service, growler, context, page, settings} = window;
@@ -28,27 +31,15 @@ const DEFAULTS = {
     },
     "from": "",
     "to": "",
-    "useNodeServer": false
 }
 
 @Injectable({
     providedIn: 'root'
 })
-export class SettingsService {
+export class SettingsService extends SettingsServiceClass {
 
-    name = "settings";
-    settings: any = {};
-    versionData: any = {};
-    settingsChange = new BehaviorSubject<any>({})
-    rejectUnauthorized = false;
-    port = DEFAULTS.port;
-    portTLS = DEFAULTS.portTLS;
-    apiVersions: any[] = [];
-    useNodeServer = DEFAULTS.useNodeServer;
-    protocol = DEFAULTS.protocol;
-    host = DEFAULTS.host;
-
-    constructor(private httpClient: HttpClient) {
+    constructor(override httpBackend: HttpBackend) {
+        super(httpBackend);
     }
 
     init() {
@@ -58,85 +49,22 @@ export class SettingsService {
         if (this.settings.port && !isNaN(this.settings.port)) this.port = this.settings.port;
         if (this.settings.portTLS && !isNaN(this.settings.portTLS)) this.portTLS = this.settings.portTLS;
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
-        if(!this.settings.useNodeServer && this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
+        if (this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
         else return Promise.resolve();
     }
 
-    get() {
-        const tmp = localStorage.getItem('ziti.settings');
-        if (tmp) {
-            this.settings = JSON.parse(tmp);
-        } else {
-            this.settings = {...DEFAULTS};
-            localStorage.setItem('ziti.settings', JSON.stringify(this.settings));
-        }
-        settings.data = this.settings;
-        context.set(this.name, this.settings);
-        this.settingsChange.next(this.settings)
+    hasSession() {
+        return !isEmpty(this.settings?.session?.id);
     }
 
-    set(data: any) {
-        this.settings = data;
-        localStorage.setItem('ziti.settings', JSON.stringify(data));
-        context.set(this.name, this.settings);
-        this.settingsChange.next(this.settings);
-    }
-
-    version() {
-        this.versionData = localStorage.getItem('ziti.version');
-        context.set("version", this.versionData);
-        this.settings = {...this.settings, version: this.versionData};
-        this.settingsChange.next(this.settings)
-    }
-
-    delete(url: string) {
-        service.call("server", {url: url}, this.deleted, "DELETE");
-    }
-
-    deleted(e: any) {
-        if (page != null && page.deleting != null && page.deleting == this.versionData.baseUrl) {
-            window.location.href = "/login";
-        }
-    }
-
-    addContoller(name: string, url: string) {
-        if (this.settings.useNodeServer) {
-            this.nodeControllerSave(name, url);
-        } else {
-            if (name.trim().length == 0 || url.trim().length == 0) {
-                growler.error("Name and URL required");
-            } else {
-                this.controllerSave(name, url);
-            }
-        }
-    }
-
-    nodeControllerSave(name, controllerURL) {
-        const nodeServerURL = this.settings.protocol + '://' + this.settings.host + ':' + this.settings.port;
-        const apiURL = nodeServerURL + '/api/controllerSave';
-        this.httpClient.post(
-            apiURL,
-            { url: controllerURL, name: name },
-            {
-                headers: {
-                    "content-type": "application/json"
-                }
-            }
-        ).toPromise().then((result: any) => {
-            this.settings.selectedEdgeController = controllerURL;
-            this.settings.edgeControllers = result.edgeControllers;
-            this.set(this.settings);
-        });
-    }
-
-    clearNodeSession(): Promise<any>  {
+    clearSession(): Promise<any>  {
         const serverUrl = this.settings.protocol + '://' + this.settings.host + ':' +this.settings.port;
         const apiUrl = serverUrl + '/login?logout=true';
         const options = this.getHttpOptions();
         return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
             if(isEmpty(resp?.error)) {
                 defer(() => {
-                    window.location.href = window.location.origin + (this.settings.useNodeServer ? '/ziti-console' : '') + '/login';
+                    window.location.href = window.location.origin + '/login';
                 });
             } else {
                 growler.error("Unknow error encountered when logging out");
@@ -145,32 +73,8 @@ export class SettingsService {
             return false;
         });
     }
- 
-    initApiVersions(url: string) {
-        url = url.split('#').join('').split('?').join('');
-        if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
-        const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=false";
-        return firstValueFrom(this.httpClient.get(callUrl)
-            .pipe(
-                tap((body: any) => {
-                    try {
-                        if (body.error) {
-                            growler.error("Invalid Edge Controller: " + body.error);
-                        } else {
-                            this.apiVersions = body.data.apiVersions;
-                        }
-                    } catch (e) {
-                        growler.error("Invalid Edge Controller: " + body);
-                    }
-                }),
-                catchError((err: any) => {
-                    throw "Edge Controller not Online: " + err?.message;
-                }),
-                map(body => body.data.apiVersions)));
-    }
 
-    private controllerSave(name: string, url: string) {
+    override controllerSave(name: string, url: string) {
         url = url.split('#').join('').split('?').join('');
         if (url.endsWith('/')) url = url.substr(0, url.length - 1);
         if (!url.startsWith('https://')) url = 'https://' + url;
@@ -220,14 +124,4 @@ export class SettingsService {
         });
     }
 
-    getHttpOptions() {
-        const options: any = {
-            headers: {
-                accept: '*',
-            },
-            params: {},
-            responseType: 'text' as const,
-        };
-        return options;
-    }
 }

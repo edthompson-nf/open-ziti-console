@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {LoginService} from "./login.service";
-import {SettingsService} from "open-ziti-console-lib";
+import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
+import {SettingsServiceClass, SETTINGS_SERVICE} from "open-ziti-console-lib";
 import {Subscription} from "rxjs";
+import {LOGIN_SERVICE, LoginServiceClass} from "./login-service.class";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     showEdge = false;
     private subscription = new Subscription();
 
-    constructor(private svc: LoginService, private settingsService: SettingsService) { }
+    constructor(@Inject(LOGIN_SERVICE) private svc: LoginServiceClass, @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass) { }
 
     ngOnInit() {
         this.subscription.add(

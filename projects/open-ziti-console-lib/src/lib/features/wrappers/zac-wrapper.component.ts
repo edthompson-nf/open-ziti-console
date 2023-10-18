@@ -1,8 +1,8 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "./zac-wrapper.service";
+import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 import {delay, invoke, isEmpty, defer, set} from 'lodash';
 import {Subscription} from "rxjs";
-import {SettingsService} from "../../services/settings.service";
+import {SettingsService, SETTINGS_SERVICE} from "../../services/settings.service";
 import {LoggerService} from "../messaging/logger.service";
 
 import $ from 'jquery';
@@ -23,8 +23,8 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
   @ViewChild('zacContainer') zacContainer: any;
 
   constructor(
-      @Inject(ZAC_WRAPPER_SERVICE) private wrapperService: ZacWrapperService,
-      private settingsService: SettingsService,
+      @Inject(ZAC_WRAPPER_SERVICE) private wrapperService: ZacWrapperServiceClass,
+      @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       private loggerService: LoggerService
   ) {
   }
@@ -34,14 +34,14 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
     this.wrapperService.initZac();
     this.subscription.add(
     this.wrapperService.pageChanged.subscribe(() => {
-      if (this.waitingForSession && !this.settingsService?.settings?.useNodeServer) {
+      if (this.waitingForSession && !this.settingsService?.hasSession()) {
         return;
       }
       this.loadPage();
     }));
     this.settingsService.settingsChange.subscribe((results:any) => {
-        if (!isEmpty(this.settingsService?.settings?.session?.id) || this.settingsService?.settings?.useNodeServer) {
-          if ((this.waitingForSession || !this.settingsService?.settings?.useNodeServer) && !this.pageLoading) {
+        if (this.settingsService.hasSession()) {
+          if (this.waitingForSession && !this.pageLoading) {
               this.pageLoading = true;
               delay(async () => {
                 await this.loadPage();

@@ -6,20 +6,28 @@ import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {LoginComponent} from './login/login.component';
 import {FormsModule} from "@angular/forms";
+import {environment} from "./environments/environment";
 
 import {
     NoopTabInterceptorService,
     OpenZitiConsoleLibModule,
     SettingsService,
+    ZacWrapperServiceClass,
     ZacWrapperService,
+    NodeWrapperService,
     GrowlerModule,
     DeactivateGuardService,
+    ZitiDataService,
+    ZitiNodeDataService,
+    ZitiControllerDataService,
+    SETTINGS_SERVICE,
+    ZITI_DATA_SERVICE,
     ZAC_WRAPPER_SERVICE,
     ZITI_DOMAIN_CONTROLLER,
     ZITI_NAVIGATOR,
     ZITI_TAB_OVERRIDES,
     ZITI_URLS,
-    DEACTIVATE_GUARD
+    DEACTIVATE_GUARD,
 } from "open-ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -32,6 +40,26 @@ import {ZitiApiInterceptor} from "./interceptors/ziti-api.interceptor";
 import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
 import {ErrorInterceptor} from "./interceptors/error-handler.interceptor";
 import {LoggingInterceptor} from "./interceptors/logging.interceptor";
+import {ControllerLoginService} from "./login/controller-login.service";
+import {LOGIN_SERVICE} from "./login/login-service.class"
+import {NodeLoginService} from "./login/node-login.service";
+import {NodeSettingsService} from "./services/node-settings.service";
+import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
+
+let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
+if (environment.nodeIntegration) {
+    loginService = NodeLoginService;
+    zitiDataService = ZitiNodeDataService;
+    settingsService = NodeSettingsService;
+    wrapperService = NodeWrapperService;
+    apiInterceptor = NoopHttpInterceptor;
+}else {
+    loginService = ControllerLoginService;
+    zitiDataService = ZitiControllerDataService;
+    settingsService = SettingsService;
+    wrapperService = ZacWrapperService;
+    apiInterceptor = ZitiApiInterceptor;
+}
 
 @NgModule({
     declarations: [
@@ -53,14 +81,17 @@ import {LoggingInterceptor} from "./interceptors/logging.interceptor";
     exports: [],
     providers: [
         {provide: ZITI_DOMAIN_CONTROLLER, useClass: SimpleZitiDomainControllerService},
-        {provide: ZAC_WRAPPER_SERVICE, useClass: ZacWrapperService},
+        {provide: ZAC_WRAPPER_SERVICE, useClass: wrapperService},
         {provide: ZITI_URLS, useValue: URLS},
         {provide: ZITI_NAVIGATOR, useValue: OPEN_ZITI_NAVIGATOR},
         {provide: ZITI_TAB_OVERRIDES, useClass: NoopTabInterceptorService},
-        {provide: HTTP_INTERCEPTORS, useClass: ZitiApiInterceptor, multi: true},
+        {provide: HTTP_INTERCEPTORS, useClass: apiInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: LoggingInterceptor, multi: true},
-        {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService}
+        {provide: DEACTIVATE_GUARD, useClass: DeactivateGuardService},
+        {provide: ZITI_DATA_SERVICE, useClass: zitiDataService},
+        {provide: LOGIN_SERVICE, useClass: loginService},
+        {provide: SETTINGS_SERVICE, useClass: settingsService},
     ],
     bootstrap: [AppComponent]
 })

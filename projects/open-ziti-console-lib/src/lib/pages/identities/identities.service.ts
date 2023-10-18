@@ -1,9 +1,9 @@
 import {HttpClient} from "@angular/common/http";
-import {Injectable} from "@angular/core";
+import {Injectable, Inject} from "@angular/core";
 
 import {isEmpty} from 'lodash';
 import moment from 'moment';
-import {SettingsService} from "../../services/settings.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {firstValueFrom} from "rxjs";
 import {catchError} from "rxjs/operators";
 
@@ -24,7 +24,7 @@ export class IdentitiesService {
 
     constructor(
         private httpClient: HttpClient,
-        private settingsService: SettingsService
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsService
     ) {
     }
 

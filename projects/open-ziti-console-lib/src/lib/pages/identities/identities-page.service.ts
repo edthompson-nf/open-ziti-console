@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, Inject} from "@angular/core";
 import {isEmpty} from 'lodash';
 import moment from 'moment';
 import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
@@ -7,8 +7,8 @@ import {
     TableColumnDefaultComponent
 } from "../../features/data-table/column-headers/table-column-default/table-column-default.component";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
-import {SettingsService} from "../../services/settings.service";
-import {ZitiDataService} from "../../services/ziti-data.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 
 @Injectable({
     providedIn: 'root'
@@ -32,9 +32,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
     ]
 
     constructor(
-        settings: SettingsService,
+        @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
-        private zitiService: ZitiDataService
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService
     ) {
         super(settings, filterService);
     }
@@ -220,7 +220,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public getIdentitiesRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING);
+        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING, []);
     }
 
     hasEnrolmentToken(identity: any) {

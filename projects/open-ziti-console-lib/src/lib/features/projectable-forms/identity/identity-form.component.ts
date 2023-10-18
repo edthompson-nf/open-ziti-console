@@ -8,13 +8,13 @@ import {
   SimpleChanges,
   ViewChild,
   ElementRef,
-  AfterViewInit
+  AfterViewInit, Inject
 } from '@angular/core';
 import {ProjectableForm} from "../projectable-form.class";
-import {SettingsService} from "../../../services/settings.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
 import {isEmpty, forEach, delay, unset, keys, cloneDeep, isEqual} from 'lodash';
-import {ZitiDataService} from "../../../services/ziti-data.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {Identity} from "../../../models/identity";
@@ -64,10 +64,10 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
-      public settingsService: SettingsService,
+      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
       public svc: IdentityFormService,
       public identitiesService: IdentitiesPageService,
-      private zitiService: ZitiDataService,
+      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       private growlerService: GrowlerService
   ) {
     super();
@@ -216,8 +216,12 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
   }
 
   closeModal(refresh = false, ignoreChanges = false): void {
-    if (!ignoreChanges && this._dataChange && !confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?')) {
-      return;
+    console.log('test');
+    if (!ignoreChanges && this._dataChange) {
+      const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+      if (!confirmed) {
+        return;
+      }
     }
     this.close.emit({refresh: refresh});
   }

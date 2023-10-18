@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
-import {SettingsService} from "../../../services/settings.service";
+import {Component, Inject} from '@angular/core';
+import {SettingsService, SETTINGS_SERVICE} from "../../../services/settings.service";
 
 import {cloneDeep} from 'lodash';
 import { Router } from '@angular/router';
-import { ZacWrapperService } from '../../wrappers/zac-wrapper.service';
+import { ZacWrapperServiceClass } from '../../wrappers/zac-wrapper-service.class';
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
+import {ZAC_WRAPPER_SERVICE} from "../../wrappers/zac-wrapper-service.class";
 
 
 @Component({
@@ -15,7 +17,12 @@ export class SideToolbarComponent {
   hideNav:boolean | undefined;
   menuOpen = false;
   sideBarInit = false;
-  constructor(private settingsService: SettingsService, private router: Router, private zacService: ZacWrapperService) {}
+  constructor(
+      @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
+      private router: Router,
+      @Inject(ZAC_WRAPPER_SERVICE) private zacService: ZacWrapperServiceClass,
+      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService
+  ) {}
 
   ngOnInit() {
     this.zacService.initZac();
@@ -53,13 +60,6 @@ export class SideToolbarComponent {
   }
 
   doLogout() {
-    localStorage.removeItem('ziti.settings');
-    if (this.settingsService.useNodeServer) {
-      this.settingsService.clearNodeSession();
-    } else {
-      this.settingsService.settings.session.id = undefined;
-      this.settingsService.set(this.settingsService.settings);
-      this.router.navigate(['/login']);
-    }
+    this.zitiService.logout();
   }
 }

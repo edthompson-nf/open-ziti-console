@@ -1,12 +1,12 @@
-import {Injectable} from "@angular/core";
+import {Injectable, Inject} from "@angular/core";
 import moment from 'moment';
 
 import {isEmpty, unset, keys} from 'lodash';
-import {ZitiDataService} from "../../../services/ziti-data.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {Identity} from "../../../models/identity";
-import {SettingsService} from "../../../services/settings.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
 @Injectable({
     providedIn: 'root'
@@ -14,8 +14,8 @@ import {SettingsService} from "../../../services/settings.service";
 export class IdentityFormService {
 
     constructor(
-        public settingsService: SettingsService,
-        private zitiService: ZitiDataService,
+        @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
         private growlerService: GrowlerService
     ) {}
  

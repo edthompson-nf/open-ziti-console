@@ -9,7 +9,7 @@ import moment from 'moment';
 import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
-import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
+import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {Identity} from "../../models/identity";
@@ -37,7 +37,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
       private consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperService
+      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
   ) {
     super(filterService, svc);
   }

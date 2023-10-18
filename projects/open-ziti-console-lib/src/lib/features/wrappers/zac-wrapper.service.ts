@@ -7,9 +7,8 @@ import {get, isEmpty, set} from 'lodash';
 import $ from 'jquery';
 import {ZITI_DOMAIN_CONTROLLER, ZitiDomainControllerService} from "../../services/ziti-domain-controller.service";
 import {ZITI_URLS} from "../../open-ziti.constants";
-import {SettingsService} from "../../services/settings.service";
-
-export const ZAC_WRAPPER_SERVICE = new InjectionToken<any>('ZAC_WRAPPER_SERVICE');
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
+import {ZacWrapperServiceClass} from "./zac-wrapper-service.class";
 
 export const COMPONENTS: any = {
     api: `<label data-i18n="APICalls"></label>
@@ -77,22 +76,16 @@ export const COMPONENTS: any = {
 
 
 @Injectable({providedIn: 'root'})
-export class ZacWrapperService {
-
-    zitiUpdated = new EventEmitter<void>();
-    pageChanged = new EventEmitter<void>();
-    subscription: Subscription = new Subscription();
-    page = '';
-    scriptsAdded = false;
-    zacInit = false;
+export class ZacWrapperService extends ZacWrapperServiceClass {
 
     constructor(
-        @Inject(ZITI_DOMAIN_CONTROLLER) private zitiDomainController: ZitiDomainControllerService,
-        @Inject(ZITI_URLS) private URLS:any,
-        private settingsService: SettingsService,
-        private http: HttpClient,
-        private router: Router,
+        @Inject(ZITI_DOMAIN_CONTROLLER) override zitiDomainController: ZitiDomainControllerService,
+        @Inject(ZITI_URLS) override URLS:any,
+        @Inject(SETTINGS_SERVICE) override settingsService: SettingsService,
+        override http: HttpClient,
+        override router: Router,
     ) {
+        super(zitiDomainController, URLS, settingsService, http, router);
         this.getCurrentPage(this.router.url);
         this.initRouteListener();
     }
@@ -103,17 +96,13 @@ export class ZacWrapperService {
         }
         const appInit = get(window, 'app.init');
         this.settingsService.settingsChange.subscribe((settings) => {
-            if (!this.settingsService.useNodeServer) {
-                set(window, 'service.call', this.handleServiceCall.bind(this));
-            } else {
-                set(window, 'service.host', this.settingsService.protocol+"://"+this.settingsService.host+":"+this.settingsService.port);
-            }
+            set(window, 'service.call', this.handleServiceCall.bind(this));
         });
         this.initZacListeners();
         this.zacInit = true;
     }
 
-    private initZacListeners() {
+    override initZacListeners() {
         set(window, 'header.goto', (event: any) => {
             const url = $(event.currentTarget).data("go");
             let route = this.getCurrentPage(url);
@@ -325,7 +314,7 @@ export class ZacWrapperService {
         });
     }
 
-    loadCurrentPage() {
+    override loadCurrentPage() {
         if (isEmpty(this.page)) {
             this.page = 'index'
         }
@@ -597,7 +586,7 @@ export class ZacWrapperService {
         });
     }
 
-    initZACButtonListener() {
+    override initZACButtonListener() {
         $('.action.icon-plus.icon-add, #HelpButton').off('click.zacAddButtonClicked');
         $('.action.icon-plus.icon-add, #HelpButton').on('click.zacAddButtonClicked', (event) => {
             if ($(event.currentTarget).hasClass('icon-minus')) {

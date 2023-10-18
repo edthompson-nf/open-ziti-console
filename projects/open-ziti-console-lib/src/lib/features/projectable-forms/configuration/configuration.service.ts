@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {ZitiDataService} from "../../../services/ziti-data.service";
+import {Injectable, Inject} from '@angular/core';
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {Resolver} from "@stoplight/json-ref-resolver";
 import {JsonEditorOptions} from "ang-jsoneditor";
 
@@ -9,7 +9,7 @@ import {JsonEditorOptions} from "ang-jsoneditor";
 export class ConfigurationService {
     private configTypes: any[] = [];
 
-    constructor(private dataService: ZitiDataService) {
+    constructor(@Inject(ZITI_DATA_SERVICE) private dataService: ZitiDataService) {
     }
 
     async getSchema(schemaType: string): Promise<any> {
@@ -21,7 +21,7 @@ export class ConfigurationService {
     }
 
     getConfigTypes() {
-        return this.dataService.get('config-types', {})
+        return this.dataService.get('config-types', {}, [])
         .then(async (body: any) => {
             if (body.error) throw body.error;
             const promises: Promise<any>[] = [];

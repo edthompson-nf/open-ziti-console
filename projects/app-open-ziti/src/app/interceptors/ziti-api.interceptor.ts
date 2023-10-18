@@ -1,21 +1,23 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Inject} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take} from 'rxjs';
-import {SettingsService} from "open-ziti-console-lib";
+import {SettingsServiceClass, SETTINGS_SERVICE} from "open-ziti-console-lib";
 import moment from "moment/moment";
-import {LoginService} from "../login/login.service";
+import {LOGIN_SERVICE, LoginServiceClass} from "../login/login-service.class";
 import {Router} from "@angular/router";
 
 /** Pass untouched request through to the next request handler. */
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ZitiApiInterceptor implements HttpInterceptor {
     private refreshTokenInProgress = false;
     private refreshTokenSubject = new BehaviorSubject(null);
 
-    constructor(private settingsService: SettingsService,
-                private loginService: LoginService,
+    constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+                @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass,
                 private router: Router) {
 
     }
@@ -26,16 +28,8 @@ export class ZitiApiInterceptor implements HttpInterceptor {
         if (!req.url.startsWith("http")
             || req.url.indexOf("authenticate") > 0
             || req.url.indexOf("version") > 0
-            || this.settingsService.settings.useNodeServer
         ) {
-            return next.handle(req).pipe(map((event: any) => {
-                if (this.settingsService.settings.useNodeServer) {
-                    if (event?.body?.error) {
-                        this.router.navigate['/login'];
-                    }
-                }
-                return event;
-            }));;
+            return next.handle(req);
         } else {
             const session = this.settingsService.settings.session;
             const tokenExpirationDate = moment(session.expiresAt);
@@ -86,7 +80,7 @@ export class ZitiApiInterceptor implements HttpInterceptor {
 
     private addAuthToken(request: any) {
         const session = this.settingsService.settings.session;
-        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': 'application/json', accept: 'application/json'}, withCredentials: this.settingsService.settings.useNodeServer});
+        return request.clone({setHeaders: {"zt-session": session.id, 'content-type': 'application/json', accept: 'application/json'}});
     }
 }
 
