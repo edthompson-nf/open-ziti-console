@@ -4,14 +4,14 @@ import {
     HttpInterceptor,
     HttpRequest,
 } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import {GrowlerService, GrowlerModel, SettingsService} from "open-ziti-console-lib";
+import {GrowlerService, GrowlerModel, SettingsServiceClass, SETTINGS_SERVICE} from "open-ziti-console-lib";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private growlerService: GrowlerService, private settings: SettingsService) {}
+    constructor(private growlerService: GrowlerService, @Inject(SETTINGS_SERVICE) private settings: SettingsServiceClass) {}
 
     intercept(
         request: HttpRequest<any>,

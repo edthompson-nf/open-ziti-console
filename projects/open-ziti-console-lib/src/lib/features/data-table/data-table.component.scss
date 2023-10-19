@@ -31,6 +31,9 @@
 
         .tActionRow {
           display: flex;
+          &.menu-item-hidden {
+            display: none;
+          }
         }
       }
     }

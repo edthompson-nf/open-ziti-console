@@ -17,7 +17,7 @@ import nodemailer from 'nodemailer';
 import {fileURLToPath} from 'url';
 import crypto from 'crypto';
 import compression from 'compression';
-
+import _ from 'lodash';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,14 +93,17 @@ if (zitified) {
 }
 var corsOptions = {
   origin: '*',
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  credentials: true,
+  allowedHeaders: 'Accept, Content-Type, Accept-Encoding, Accept-Language, Access-Control-Request-Headers, Access-Control-Request-Method, Connection, Host, Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, User-Agent'
 }
 var helmetOptions = {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
         styleSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
-        scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'"],
+        scriptSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
+		scriptSrcAttr: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', "'unsafe-inline'", "'unsafe-eval'"],
         imgSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'b.tile.opernstreetmap.org', 'data:', 'blob:', 'https:'],
         connectSrc: ["'self'", 'www.googletagmanager.com', 'www.google-analytics.com', 'openstreetmap.org', 'ws:', 'wss:'],
         frameSrc: ["'self'", 'www.googletagmanager.com', 'openstreetmap.org'],
@@ -137,6 +140,37 @@ app.use(function (req, res, next) {
 	next();
 });
 
+app.use(express.static(__dirname + '../../dist/app-open-ziti'));
+
+app.get('/ziti-console', (req, res) => res.sendFile(path.join(__dirname + '/../../dist/app-open-ziti/index.html')));
+
+var resourceExtensions = ['.css', '.js', '.scss', '.map', '.json', '.htm', '.svg', '.png', '.jpg', '.ttf', '.woff', '.woff2', '.ttf', '.eot', '.html'];
+app.get('/ziti-console/:name', function(request, response) {
+	var name = request.params.name;
+	var isResource = false;
+	_.forEach(resourceExtensions, function(ext) {
+		if(_.includes(name, ext)) {
+			isResource = true;
+		}
+	});
+	if(isResource) {
+		response.sendFile(path.resolve(__dirname + '/../../dist/app-open-ziti/'+name));
+	} else {
+		response.sendFile(path.join(__dirname + '/../../dist/app-open-ziti/index.html'));
+	}
+});
+
+app.get('/ziti-console/assets/pages/:name', function(request, response) {
+	var name = request.params.name;
+	var resource = request.params.resource;
+	response.sendFile(path.resolve(__dirname + '/../../dist/app-open-ziti/assets/pages/'+name));
+});
+
+app.get('/ziti-console/:resource/:name', function(request, response) {
+	var name = request.params.name;
+	var resource = request.params.resource;
+	response.sendFile(path.resolve(__dirname + '/../../dist/app-open-ziti/'+resource+'/'+name));
+});
 /**
  * Load configurable settings, or create the settings in place if they have never been defined
  */
@@ -1921,7 +1955,7 @@ app.use((err, request, response, next) => {
 	if (err) {
 		if (err.toString().indexOf("Error: EPERM: operation not permitted, rename")==0) {
 			// Ignoring chatty session-file warnings
-		} else console.err(err);
+		} else console.error(err);
 		next();
 	} else {  
 		next();

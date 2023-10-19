@@ -1,26 +1,53 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  ElementRef,
+  AfterViewInit, Inject
+} from '@angular/core';
 import {ProjectableForm} from "../projectable-form.class";
-import {SettingsService} from "../../../services/settings.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../../services/settings.service";
 
-import {isEmpty, unset, keys} from 'lodash';
-import {ZitiDataService} from "../../../services/ziti-data.service";
+import {isEmpty, forEach, delay, unset, keys, cloneDeep, isEqual} from 'lodash';
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {GrowlerService} from "../../messaging/growler.service";
 import {GrowlerModel} from "../../messaging/growler.model";
 import {Identity} from "../../../models/identity";
+import { IdentityFormService } from './identity-form.service';
+import {MatDialogRef} from "@angular/material/dialog";
+import {IdentitiesPageService} from "../../../pages/identities/identities-page.service";
 
 @Component({
   selector: 'lib-identity-form',
   templateUrl: './identity-form.component.html',
-  styleUrls: ['./identity-form.component.scss']
+  styleUrls: ['./identity-form.component.scss'],
+  providers: [
+    {
+      provide: MatDialogRef,
+      useValue: {}
+    }
+  ]
 })
-export class IdentityFormComponent extends ProjectableForm implements OnInit {
+export class IdentityFormComponent extends ProjectableForm implements OnInit, OnChanges, AfterViewInit {
   @Input() formData: any = {};
   @Input() identityRoleAttributes: any[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
+  @Output() dataChange: EventEmitter<any> = new EventEmitter<any>();
 
+  initData: any = {};
+  isEditing = false;
+  enrollmentExpiration: any;
+  jwt: any;
   isLoading = false;
   associatedServicePolicies: any = [];
+  associatedServicePolicyNames: any = [];
   associatedServices: any = [];
+  associatedServiceNames: any = [];
   servicesLoading = false;
   servicePoliciesLoading = false;
   authPolicies: any = [
@@ -28,14 +55,19 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
   ];
 
   showMore = false;
-  errors: { name: string; msg: string }[];
+  errors: { name: string; msg: string }[] = [];
   formView = 'simple';
-
+  enrollmentType = 'ott';
+  enrollmentCA;
+  enrollmentUPDB = '';
   settings: any = {};
 
+  @ViewChild('nameFieldInput') nameFieldInput: ElementRef;
   constructor(
-      public settingsService: SettingsService,
-      private zitiService: ZitiDataService,
+      @Inject(SETTINGS_SERVICE) public settingsService: SettingsService,
+      public svc: IdentityFormService,
+      public identitiesService: IdentitiesPageService,
+      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
       private growlerService: GrowlerService
   ) {
     super();
@@ -46,6 +78,49 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
     this.settingsService.settingsChange.subscribe((results:any) => {
       this.settings = results;
     });
+    this.jwt = this.identitiesService.getJWT(this.formData);
+    this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
+    this.getAssociatedServices();
+    this.getAssociatedServicePolicies();
+    this.initData = cloneDeep(this.formData);
+    this.watchData();
+  }
+
+  override ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.nameFieldInput.nativeElement.focus();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.isEditing = !isEmpty(this.formData.id);
+  }
+
+  getAssociatedServices() {
+    this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
+      console.log(result);
+      this.associatedServices = result.data;
+      this.associatedServiceNames = this.associatedServices.map((svc) => {
+        return svc.name;
+      });
+    });
+  }
+
+  getAssociatedServicePolicies() {
+    this.zitiService.getSubdata('identities', this.formData.id, 'service-policies').then((result: any) => {
+      console.log(result);
+      this.associatedServicePolicies = result.data;
+      this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
+        return policy.name;
+      });
+    });
+  }
+
+  get hasEnrolmentToken() {
+    return this.identitiesService.hasEnrolmentToken(this.formData);
+  }
+
+  get jwtExpired() {
+    return false;
   }
 
   headerActionRequested(action) {
@@ -60,6 +135,43 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
         this.formView = action.data;
         break;
     }
+  }
+
+  updateEnrollment() {
+    switch (this.enrollmentType) {
+      case 'ott':
+        this.formData.enrollment = {ott: true}
+        break;
+      case 'CA':
+        this.formData.enrollment = {ottca: this.enrollmentCA};
+        break;
+      case 'updb':
+        this.formData.enrollment = {updb: this.enrollmentUPDB};
+        break;
+      default:
+        this.formData.enrollment = {ott: true}
+        break;
+    }
+  }
+
+  save() {
+    if(!this.validate()) {
+      return;
+    }
+    this.isLoading = true;
+    this.svc.save(this.formData).then((result) => {
+      this.closeModal(true, true);
+    }).finally(() => {
+      this.isLoading = false;
+    });
+  }
+
+  validate() {
+    this.errors = [];
+    if (isEmpty(this.formData.name)) {
+      this.errors['name'] = true;
+    }
+    return isEmpty(this.errors);
   }
 
   get apiCallURL() {
@@ -77,6 +189,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
           externalId: this.formData.externalId || '',
           defaultHostingCost: this.formData.defaultHostingCost || '',
           defaultHostingPrecedence: this.formData.defaultHostingPrecedence || '',
+          enrollment: this.formData.enrollment || {ott: true},
           tags: this.formData.tags || ''
     }
     return data;
@@ -102,72 +215,29 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit {
     this.growlerService.show(growlerData);
   }
 
-  closeModal(refresh = false): void {
+  closeModal(refresh = false, ignoreChanges = false): void {
+    console.log('test');
+    if (!ignoreChanges && this._dataChange) {
+      const confirmed = confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+      if (!confirmed) {
+        return;
+      }
+    }
     this.close.emit({refresh: refresh});
-  }
-
-  save(): void {
-    const isUpdate = !isEmpty(this.formData.id);
-    const data: any = this.getIdentityDataModel(isUpdate);
-    const svc = isUpdate ? this.zitiService.patch.bind(this.zitiService) : this.zitiService.post.bind(this.zitiService);
-    this.isLoading = true;
-    svc('identities', data, this.formData.id).then((result) => {
-      const growlerData = new GrowlerModel(
-          'success',
-          'Success',
-          `Identity ${isUpdate ? 'Updated' : 'Created'}`,
-          `Successfully ${isUpdate ? 'updated' : 'created'} Identity: ${this.formData.name}`,
-      );
-      this.growlerService.show(growlerData);
-      this.closeModal(true);
-    }).catch((error) => {
-      let errorMessage;
-      if (error?.error?.error?.cause?.reason) {
-        errorMessage = error?.error?.error?.cause?.reason;
-      } else if (error?.error?.error?.message) {
-        errorMessage = error?.error?.error?.message;
-      } else {
-        errorMessage = 'An unknown error occurred';
-      }
-      const growlerData = new GrowlerModel(
-          'error',
-          'Error',
-          `Error Creating Identity`,
-          errorMessage,
-      );
-      this.growlerService.show(growlerData);
-    }).finally(() => {
-      this.isLoading = false;
-    });
-  }
-
-  getIdentityDataModel(isUpdate) {
-    const saveModel = new Identity();
-    const modelProperties = keys(saveModel);
-    modelProperties.forEach((prop) => {
-      switch(prop) {
-        case 'type':
-          if(isUpdate) {
-            saveModel[prop] = this.formData[prop].id;
-          } else {
-            saveModel[prop] = this.formData[prop];
-          }
-          break;
-        case 'enrollment':
-          if(isUpdate) {
-            saveModel[prop] = this.formData[prop];
-          } else {
-            unset(saveModel, 'enrollment');
-          }
-          break;
-        default:
-          saveModel[prop] = this.formData[prop];
-      }
-    });
-    return saveModel;
   }
 
   clear(): void {
   }
 
+  _dataChange = false;
+  watchData() {
+    delay(() => {
+      const dataChange = !isEqual(this.initData, this.formData);
+      if (dataChange !== this._dataChange) {
+        this.dataChange.emit(dataChange);
+      }
+      this._dataChange = dataChange;
+      this.watchData();
+    }, 100);
+  }
 }

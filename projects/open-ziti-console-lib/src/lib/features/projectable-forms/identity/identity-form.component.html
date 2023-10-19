@@ -1,4 +1,7 @@
-<div class="projectable-form-wrapper">
+<div class="projectable-form-wrapper"
+     (keyup.enter)="save()"
+     (keyup.escape)="closeModal(false)"
+>
     <div class="identity-form-container">
         <lib-form-header
             [data]="formData"
@@ -11,7 +14,14 @@
         <div class="form-group-row" *ngIf="formView === 'simple'">
             <div class="form-group-column three-fifths">
                 <lib-form-field-container [title]="'Identity Name'" [label]="'REQUIRED'">
-                    <input class="form-field-input" placeholder="Name this identity" [(ngModel)]="formData.name"/>
+                    <input
+                        class="form-field-input"
+                        placeholder="Name this identity"
+                        [ngClass]="{error: errors['name']}"
+                        [(ngModel)]="formData.name"
+                        autofocus
+                        #nameFieldInput
+                    />
                 </lib-form-field-container>
                 <lib-form-field-container
                         [title]="'Select or create Identity attributes'"
@@ -37,8 +47,8 @@
                     >
                         <option value="">Select an Authentication Policy</option>
                         <option
-                                *ngFor="let policy of authPolicies"
-                                [value]="policy.id"
+                            *ngFor="let policy of authPolicies"
+                            [value]="policy.id"
                         >
                             {{ policy.name }}
                         </option>
@@ -47,6 +57,43 @@
                 </lib-form-field-container>
                 <lib-form-field-toggle [(toggleOn)]="showMore" style="margin: 0px 10px"></lib-form-field-toggle>
                 <div *ngIf="showMore" class="form-group-column">
+                    <lib-form-field-container
+                        [title]="'Enrollment Type'"
+                        [title2]="enrollmentType === 'CA' ? 'CERTIFICATE AUTHORITY' : (enrollmentType === 'updb' ? 'UPDB USERNAME' : undefined)"
+                        [layout]="'row'"
+                        class="form-field-advanced"
+                    >
+                        <select
+                            id="EnrollmentType"
+                            class="form-field-dropdown"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentType"
+                            (change)="updateEnrollment()"
+                        >
+                            <option value="ott">One Time Token</option>
+                            <option value="CA">Certificate Authority</option>
+                            <option value="updb">UPDB</option>
+                        </select>
+                        <select
+                            id="CertAuthorities"
+                            class="form-field-dropdown"
+                            *ngIf="enrollmentType === 'CA'"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentCA"
+                            (change)="updateEnrollment()"
+                        ></select>
+                        <input
+                            *ngIf="enrollmentType === 'updb'"
+                            [ngClass]="{disabled: isEditing}"
+                            [(ngModel)]="enrollmentUPDB"
+                            (keyup)="updateEnrollment()"
+                            class="form-field-input"
+                            id="UPDBName"
+                            type="text"
+                            maxlength="500"
+                            placeholder="Enter a name"
+                        >
+                    </lib-form-field-container>
                     <lib-form-field-container
                             [title]="'Hosting Cost'"
                             [title2]="'Precedence'"
@@ -67,29 +114,38 @@
             </div>
             <div class="form-group-column two-fifths">
                 <lib-form-field-container
+                        *ngIf="hasEnrolmentToken"
+                        [showHeader]="false"
+                >
+                    <lib-qr-code
+                        [jwt]="jwt"
+                        [expiration]="enrollmentExpiration"
+                    ></lib-qr-code>
+                </lib-form-field-container>
+                <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Services'"
-                        [count]="0"
+                        [count]="associatedServices.length"
                         [helpText]="'Preview list of all services that this Identity is associated with.'"
                 >
                     <lib-preview-list
                         (itemSelected)="serviceSelected($event)"
                         [clickable]="true"
                         [isLoading]="servicesLoading"
-                        [allNames]="associatedServices"
+                        [allNames]="associatedServiceNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container
                         *ngIf="formData.id"
                         [title]="'Associated Service Policies'"
-                        [count]="0"
+                        [count]="associatedServicePolicies.length"
                         [helpText]="'Preview list of all service policies that this Identity is associated with.'"
                 >
                     <lib-preview-list
                         (itemSelected)="serviceSelected($event)"
                         [clickable]="true"
                         [isLoading]="servicePoliciesLoading"
-                        [allNames]="associatedServicePolicies"
+                        [allNames]="associatedServicePolicyNames"
                     ></lib-preview-list>
                 </lib-form-field-container>
                 <lib-form-field-container

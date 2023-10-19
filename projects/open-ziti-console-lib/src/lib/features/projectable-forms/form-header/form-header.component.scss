@@ -36,7 +36,7 @@
       font-weight: 700;
       font-size: 22px;
       color: var(--tableText);
-      margin-left: 12px;
+      margin-left: 7px;
       min-width: 130px;
       text-wrap: nowrap;
 
@@ -53,6 +53,24 @@
       position: relative;
       transform: scaleY(.8);
       cursor: pointer;
+      padding-right: 6px;
+      margin-top: 2px;
+      margin-left: 4px;
+      transition: 0.3s;
+
+      &:hover {
+        background-color: #ffffff;
+        border-radius: 7px;
+        filter: brightness(90%);
+        transition: 0.3s;
+      }
+
+      &:active {
+        background-color: #ffffff;
+        border-radius: 7px;
+        filter: brightness(80%);
+        transition: 0.3s;
+      }
 
       .form-title-back-button-image {
         background-image: url(/assets/svgs/ArrowDownDark.svg);
@@ -189,6 +207,11 @@
 
     &:hover {
       filter: brightness(90%);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      filter: brightness(80%);
     }
 
     .form-toggle-switch {

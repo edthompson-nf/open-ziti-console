@@ -11,6 +11,12 @@
   }
 }
 
+.mat-mdc-dialog-surface {
+  &.mdc-dialog__surface {
+    box-shadow: none !important;
+  }
+}
+
 #AddMessageModal,
 #QRModal,
 #ResetModal,
@@ -183,11 +189,12 @@
   &:before {
     content: "";
     position: absolute;
-    border: 10px dashed var(--primary);
-    top: -8px;
-    bottom: -8px;
-    left: -8px;
-    right: -8px;
+    border: 2px dashed var(--primary);
+    top: 0px;
+    border-radius: 10px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
   }
 }
 
@@ -214,5 +221,72 @@ lib-form-field-container {
 
   &:active {
     transform: translateY(1px);
+  }
+}
+
+.download-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--primaryColor);
+  color: var(--navigation);
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: .5s;
+  height: 50px;
+
+  &:hover {
+    outline: 0;
+    filter: brightness(90%);
+    box-shadow: 0 2px 3px 0 var(--primaryColorOpaque);
+  }
+
+  &:active {
+    background: #648293;
+    box-shadow: none;
+    transform: translateY(1px);
+  }
+
+  .download-key {
+    background-size: 65%;
+    background-position: left 10px center;
+    background-image: url(/assets/svgs/DownloadKey.svg);
+    background-repeat: no-repeat;
+    padding-top: 10px;
+    margin-left: 10px;
+    text-align: center;
+    cursor: pointer;
+    height: 45px;
+    width: 45px;
+    z-index: 10;
+  }
+
+  .tap-to-download {
+    font-family: icomoon!important;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--white);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    width: 45px;
+    margin-right: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    &:before {
+      content: "\e90b";
+    }
   }
 }

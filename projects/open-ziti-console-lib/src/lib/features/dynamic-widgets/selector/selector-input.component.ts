@@ -16,7 +16,7 @@ import {debounce} from "lodash";
           <option *ngFor="let name of _valueList" [value]="name">{{name}}</option>
         </ng-container>
         <ng-container *ngIf="listIsObject">
-          <option *ngFor="let data of _valueList" [value]="data">{{data.name}}</option>
+          <option *ngFor="let data of _valueList" [value]="data.value">{{data.name}}</option>
         </ng-container>
       </select>
       <div *ngIf="error" class="error">{{error}}</div>

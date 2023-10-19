@@ -39,7 +39,7 @@ export class FilterBarComponent {
       value: this.filterString,
       label: this.filterString,
     };
-    this.filterService.upsertFilter(filterObj)
+    this.filterService.updateFilter(filterObj)
   }
 
 

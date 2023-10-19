@@ -15,6 +15,7 @@ import {SelectorInputComponent} from './features/dynamic-widgets/selector/select
 import {CheckboxListInputComponent} from './features/dynamic-widgets/checkbox-list/checkbox-list-input.component';
 import {TextListInputComponent} from "./features/dynamic-widgets/text-list/text-list-input.component";
 import {ChipsModule} from "primeng/chips";
+import {QRCodeModule} from 'angularx-qrcode';
 import {
     ProtocolAddressPortInputComponent
 } from './features/dynamic-widgets/protocol-address-port/protocol-address-port-input.component';
@@ -56,6 +57,9 @@ import {LoadingIndicatorComponent} from "./features/loading-indicator/loading-in
 import { FormFieldToggleComponent } from './features/projectable-forms/form-field-toggle/form-field-toggle.component';
 import { JsonViewComponent } from './features/json-view/json-view.component';
 import { TagSelectorComponent } from './features/tag-selector/tag-selector.component';
+import { QrCodeComponent } from './features/qr-code/qr-code.component';
+import { TableCellTokenComponent } from './features/data-table/cells/table-cell-token/table-cell-token.component';
+import {GrowlerModule} from "./features/messaging/growler.module";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -95,7 +99,6 @@ export function playerFactory() {
         HiddenColumnsBarComponent,
         FilterBarComponent,
         ExtendableComponent,
-        GrowlerComponent,
         ConfirmComponent,
         NoItemsComponent,
         SideModalComponent,
@@ -106,6 +109,8 @@ export function playerFactory() {
         FormFieldToggleComponent,
         JsonViewComponent,
         TagSelectorComponent,
+        QrCodeComponent,
+        TableCellTokenComponent,
     ],
     imports: [
         CommonModule,
@@ -115,7 +120,7 @@ export function playerFactory() {
         ZacRoutingModule,
         ChipsModule,
         AgGridModule,
-        ChipsModule,
+        QRCodeModule,
         ClickOutsideModule,
         NgJsonEditorModule,
         MatTooltipModule,
@@ -140,10 +145,10 @@ export function playerFactory() {
         ConfigurationFormComponent,
         IdentitiesPageComponent,
         ZacRoutingModule,
-        GrowlerComponent,
         SideModalComponent,
         IdentityFormComponent,
-        LoadingIndicatorComponent
+        LoadingIndicatorComponent,
+        GrowlerModule
     ],
     providers: [
         {provide: SHAREDZ_EXTENSION, useClass: ExtensionsNoopService},
@@ -153,7 +158,7 @@ export function playerFactory() {
             useFactory: onAppInit,
             deps: [Injector],
             multi: true
-        },
+        }
     ],
 })
 export class OpenZitiConsoleLibModule {

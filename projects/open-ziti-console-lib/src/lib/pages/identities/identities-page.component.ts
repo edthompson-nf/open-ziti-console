@@ -9,10 +9,11 @@ import moment from 'moment';
 import $ from 'jquery';
 import {ConfirmComponent} from "../../features/confirm/confirm.component";
 import {MatDialog} from "@angular/material/dialog";
-import {ZAC_WRAPPER_SERVICE, ZacWrapperService} from "../../features/wrappers/zac-wrapper.service";
+import {ZacWrapperServiceClass, ZAC_WRAPPER_SERVICE} from "../../features/wrappers/zac-wrapper-service.class";
 import {SettingsService} from "../../services/settings.service";
 import {ConsoleEventsService} from "../../services/console-events.service";
 import {Identity} from "../../models/identity";
+import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 
 
 @Component({
@@ -28,6 +29,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   dialogRef: any;
   isLoading = false;
   identityRoleAttributes: any[] = [];
+  formDataChanged = false;
 
   constructor(
       public override svc: IdentitiesPageService,
@@ -35,7 +37,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       public dialogForm: MatDialog,
       private tabNames: TabNameService,
       private consoleEvents: ConsoleEventsService,
-      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperService
+      @Inject(ZAC_WRAPPER_SERVICE)private zacWrapperService: ZacWrapperServiceClass
   ) {
     super(filterService, svc);
   }
@@ -76,6 +78,10 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       this.refreshData();
       this.getIdentityRoleAttributes();
     }
+  }
+
+  dataChanged(event) {
+    this.formDataChanged = event;
   }
 
   private openUpdate(item?: any) {
@@ -146,7 +152,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.downloadJWT(event.item)
         break;
       case 'qr-code':
-        this.getQRCode(event.item)
+        this.showQRCode(event.item)
         break;
       default:
         break;
@@ -174,11 +180,20 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   downloadJWT(item: any) {
-    window['page']['getCert'](item);
+    const jwt = this.svc.getJWT(item);
+    this.svc.downloadJWT(jwt);
   }
 
-  getQRCode(item: any) {
-    window['page']['genQR'](item);
+  showQRCode(item: any) {
+    const data = {
+      jwt: this.svc.getJWT(item),
+      expiration: this.svc.getEnrollmentExpiration(item),
+      qrCodeSize: 300
+    };
+    this.dialogRef = this.dialogForm.open(QrCodeComponent, {
+      data: data,
+      autoFocus: false,
+    });
   }
 
   deleteItem(item: any) {
@@ -186,8 +201,15 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   getIdentityRoleAttributes() {
-    this.svc.getIdentitiesRoleAttributes().then((result) => {
+    this.svc.getIdentitiesRoleAttributes().then((result: any) => {
       this.identityRoleAttributes = result.data;
     });
+  }
+
+  canDeactivate() {
+    if (this.formDataChanged && this.modalOpen) {
+      return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
+    }
+    return true;
   }
 }

@@ -15,3 +15,8 @@
   background-size: 18px;
   padding-right: 28px;
 }
+
+.disabled {
+  opacity: .5;
+  pointer-events: none;
+}

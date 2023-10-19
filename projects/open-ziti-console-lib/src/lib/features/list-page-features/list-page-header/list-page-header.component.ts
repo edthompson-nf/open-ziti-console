@@ -7,7 +7,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 })
 export class ListPageHeaderComponent {
     @Input() title: string = '';
-    @Input() tabs!: { url: string, label: string }[];
+    @Input() tabs!: any[];
     @Input() showAdd = true;
     @Input() hideAction = false;
     @Output() actionClicked = new EventEmitter<string>();

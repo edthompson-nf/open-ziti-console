@@ -1,4 +1,4 @@
-<div class="main" [ngClass]="{sideNavClosed: !displayNav}">
+<div *ngIf="!loading" class="main" [ngClass]="{sideNavClosed: !displayNav}">
     <div class="side">
         <ng-container *ngIf="isAuthorized; else login">
             <lib-side-toolbar *ngIf="displayTool" ></lib-side-toolbar>
@@ -13,3 +13,4 @@
     </div>
 </div>
 <lib-growler></lib-growler>
+<lib-loading-indicator *ngIf="loading" [isLoading]="loading"></lib-loading-indicator>

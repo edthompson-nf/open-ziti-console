@@ -18,9 +18,14 @@
 
     <ng-template #userLogin>
         <lib-selector-input [fieldName]="'Edge Controller'"
-                    [(fieldValue)]="selectedEdgeController" [error]="edgeNameError"
+                    [(fieldValue)]="selectedEdgeController"
+                    [error]="edgeNameError"
                     [placeholder]="'Connect to a new Edge Controller'"
-                    [valueList]="edgeControllerList"></lib-selector-input>
+                    [valueList]="edgeControllerList"
+                    (fieldValueChange)="edgeChanged($event)"
+        >
+
+        </lib-selector-input>
         <lib-string-input [fieldName]="'Username'"
                     [(fieldValue)]="username"
                     [placeholder]="'enter username of controller'"></lib-string-input>

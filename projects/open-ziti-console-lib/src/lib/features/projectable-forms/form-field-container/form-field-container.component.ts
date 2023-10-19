@@ -15,5 +15,7 @@ export class FormFieldContainerComponent {
   @Input() label: any = undefined;
   @Input() count: any = undefined;
   @Input() contentStyle: any = '';
+  @Input() showHeader: any = true;
+
   constructor() {}
 }

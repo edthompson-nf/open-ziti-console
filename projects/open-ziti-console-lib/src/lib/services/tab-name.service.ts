@@ -21,7 +21,7 @@ export class TabNameService {
         [
             ["identities", [
                 {label: 'Identities', url: '/identities'},
-                {label: 'Recipes', url: '/recipes'},
+                {label: 'Recipes', url: '/recipes', hidden: window['hideAdvancedZitiFeatures']},
                 {label: 'Terminators', url: '/terminators'},
                 {label: 'Posture Checks', url: '/config-posture-checks'},
             ]

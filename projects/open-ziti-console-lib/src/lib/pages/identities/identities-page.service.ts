@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, Inject} from "@angular/core";
 import {isEmpty} from 'lodash';
 import moment from 'moment';
 import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
@@ -7,8 +7,8 @@ import {
     TableColumnDefaultComponent
 } from "../../features/data-table/column-headers/table-column-default/table-column-default.component";
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
-import {SettingsService} from "../../services/settings.service";
-import {ZitiDataService} from "../../services/ziti-data.service";
+import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
+import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
 
 @Injectable({
     providedIn: 'root'
@@ -32,9 +32,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
     ]
 
     constructor(
-        settings: SettingsService,
+        @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
-        private zitiService: ZitiDataService
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService
     ) {
         super(settings, filterService);
     }
@@ -91,32 +91,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
              </div>`;
         }
 
-        const tokenRenderer = (row) => {
-            let enrollment = "N/A";
-            const enrollmentData = row?.data?.enrollment;
-            if (enrollmentData&&enrollmentData?.ott&&enrollmentData?.ott?.jwt) {
-                if (enrollmentData?.ott?.expiresAt!=null) {
-                    const difference = moment(enrollmentData?.ott?.expiresAt).diff(moment(new Date()));
-                    if (difference>0) enrollment = '<span class="cert" data-id="'+row?.data?.id+'"></span><span class="qr icon-qr" data-id="'+row?.data?.id+'"></span>';
-                } else {
-                    enrollment = '<span class="cert" data-id="'+row?.data?.id+'"></span><span class="qr icon-qr" data-id="'+row?.data?.id+'"></span>';
-                }
-                enrollment = `<div class="gridAction">${enrollment}</div>`
-            } else {
-                if (enrollmentData?.updb) {
-                    if (enrollmentData?.updb?.expiresAt!=null) {
-                        const difference = moment(enrollmentData?.updb?.expiresAt).diff(moment(new Date()));
-                        if (difference>0) enrollment = '<span class="cert" data-id="'+row?.data?.id+'"></span><span class="qr icon-qr" data-id="'+row?.data?.id+'"></span>';
-                    } else {
-                        enrollment = '<span class="cert" data-id="'+row?.data?.id+'"></span><span class="qr icon-qr" data-id="'+row?.data?.id+'"></span>';
-                    }
-                    enrollment = `<div class="gridAction">${enrollment}</div>`
-                }
-            }
-
-            return `<div class="col desktop notitle">${enrollment}</div>`
-        };
-
         const createdAtFormatter = (row) => {
             return moment(row?.data?.createdAt).local().format('M/D/YYYY H:MM A');
         }
@@ -158,7 +132,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 width: 100,
                 cellRenderer: osRenderer,
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: osParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
@@ -168,7 +141,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerName: 'SDK',
                 cellRenderer: sdkRenderer,
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
@@ -177,7 +149,6 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'type.name',
                 headerName: 'Type',
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
                 resizable: true,
                 sortable: true,
                 cellClass: 'nf-cell-vert-align tCol',
@@ -188,8 +159,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'isAdmin',
                 headerName: 'Is Admin',
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
                 resizable: true,
+                sortable: true,
+                sortColumn: this.sort.bind(this),
                 cellClass: 'nf-cell-vert-align tCol',
             },
             {
@@ -197,9 +169,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'createdAt',
                 headerName: 'Created At',
                 headerComponent: TableColumnDefaultComponent,
-                headerComponentParams: this.headerComponentParams,
                 valueFormatter: createdAtFormatter,
                 resizable: true,
+                sortable: true,
+                sortColumn: this.sort.bind(this),
                 cellClass: 'nf-cell-vert-align tCol',
             },
             {
@@ -207,7 +180,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 field: 'token',
                 headerName: 'Token',
                 headerComponent: TableColumnDefaultComponent,
-                cellRenderer: tokenRenderer,
+                cellRenderer: 'cellTokenComponent',
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             }
@@ -233,24 +206,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
             row.actionList = ['update', 'override', 'delete'];
-            if (row?.enrollment?.ott) {
-                if (row?.enrollment?.ott?.expiresAt) {
-                    const difference = moment(row?.enrollment?.ott?.expiresAt).diff(moment(new Date()));
-                    if (difference > 0) {
-                        row.actionList.push('download-enrollment');
-                        row.actionList.push('qr-code');
-                    }
-                } else {
-                    row.actionList.push('download-enrollment');
-                    row.actionList.push('qr-code');
-                }
-            } else if (row?.enrollment?.updb) {
-                if (row?.enrollment?.updb?.expiresAt != null) {
-                    const difference = moment(row?.enrollment?.updb?.expiresAt).diff(moment(new Date()));
-                    if (difference > 0) {
-                        row.actionList.push('download-enrollment');
-                        row.actionList.push('qr-code');
-                    }
+            if (this.hasEnrolmentToken(row)) {
+                const expiration = moment(this.getEnrollmentExpiration(row));
+                if (expiration.isBefore()) {
+                    row.actionList.push('override');
                 } else {
                     row.actionList.push('download-enrollment');
                     row.actionList.push('qr-code');
@@ -261,6 +220,50 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public getIdentitiesRoleAttributes() {
-        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING);
+        return this.zitiService.get('identity-role-attributes', this.DEFAULT_PAGING, []);
+    }
+
+    hasEnrolmentToken(identity: any) {
+        return !isEmpty(identity?.enrollment?.ott?.jwt) ||
+            !isEmpty(identity?.enrollment?.ottca?.jwt) ||
+            !isEmpty(identity?.enrollment?.updb?.jwt);
+    }
+
+    getJWT(identity: any) {
+        let qrCode;
+        if (!isEmpty(identity?.enrollment?.ott?.jwt)) {
+            qrCode = identity?.enrollment?.ott?.jwt;
+        } else if (!isEmpty(identity?.enrollment?.ottca?.jwt)) {
+            qrCode = identity?.enrollment?.ottca?.jwt;
+        } else if(!isEmpty(identity?.enrollment?.updb?.jwt)) {
+            qrCode = identity?.enrollment?.updb?.jwt;
+        }
+        return qrCode;
+    }
+
+    downloadJWT(jwt) {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:application/ziti-jwt;charset=utf-8,' + encodeURIComponent(jwt));
+        element.setAttribute('download', name+".jwt");
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    reissueJWT(jwt) {
+
+    }
+
+    getEnrollmentExpiration(identity: any) {
+        let expiresAt;
+        if (!isEmpty(identity?.enrollment?.ott?.expiresAt)) {
+            expiresAt = identity?.enrollment?.ott?.expiresAt;
+        } else if (!isEmpty(identity?.enrollment?.ottca?.expiresAt)) {
+            expiresAt = identity?.enrollment?.ottca?.expiresAt;
+        } else if(!isEmpty(identity?.enrollment?.updb?.expiresAt)) {
+            expiresAt = identity?.enrollment?.updb?.expiresAt;
+        }
+        return expiresAt;
     }
 }

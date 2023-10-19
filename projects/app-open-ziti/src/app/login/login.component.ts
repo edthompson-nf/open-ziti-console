@@ -1,6 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {LoginService} from "./login.service";
-import {SettingsService} from "open-ziti-console-lib";
+import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
 import {Subscription} from "rxjs";
 
 // @ts-ignore
@@ -19,14 +18,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     edgeUrl: string = '';
     edgeCreate = false;
     userLogin = false;
-    selectedEdgeController = '';
+    selectedEdgeController: any;
     edgeNameError = '';
     edgeUrlError = '';
     backToLogin = false;
     showEdge = false;
     private subscription = new Subscription();
 
-    constructor(private svc: LoginService, private settingsService: SettingsService) { }
+    constructor(@Inject(LOGIN_SERVICE) private svc: LoginServiceClass, @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass) { }
 
     ngOnInit() {
         this.subscription.add(
@@ -40,7 +39,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if(this.selectedEdgeController) {
             context.set("serviceUrl", this.selectedEdgeController);
             const apiVersions = this.settingsService.apiVersions;
-            const prefix = apiVersions["edge-management"].v1.path;
+            const prefix = apiVersions && apiVersions["edge-management"]?.v1?.path || '';
             this.svc.login(
                 prefix,
                 this.selectedEdgeController,
@@ -73,7 +72,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.userLogin = true;
     }
 
-    edgeChanged() {
+    edgeChanged(event?) {
         this.edgeNameError = '';
         this.edgeUrlError = '';
         if (this.selectedEdgeController) {
@@ -93,7 +92,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.selectedEdgeController = settings.selectedEdgeController;
         if (settings.edgeControllers?.length > 0) {
             this.backToLogin = false;
-            this.edgeControllerList = settings.edgeControllers;
+            this.edgeControllerList = [];
+            settings.edgeControllers.forEach((controller) => {
+                this.edgeControllerList.push({name:controller.name, value: controller.url});
+            });
             this.reset();
         } else {
             this.backToLogin = true;

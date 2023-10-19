@@ -45,7 +45,7 @@ export class TableColumnFilterComponent implements OnInit, AfterViewInit, OnDest
             value: this.filterString,
             label: this.filterString,
         };
-        this.filterService.upsertFilter(filterObj)
+        this.filterService.updateFilter(filterObj)
     }
 
 
