@@ -139,13 +139,6 @@ export class ZitiControllerDataService extends ZitiDataService {
         );
     }
 
-    override logout() {
-        localStorage.removeItem('ziti.settings');
-        this.settingsService.settings.session.id = undefined;
-        this.settingsService.set(this.settingsService.settings);
-        this.router.navigate(['/login']);
-    }
-
     private getUrlFilter(paging: any) {
         let urlFilter = '';
         let toSearchOn = "name";

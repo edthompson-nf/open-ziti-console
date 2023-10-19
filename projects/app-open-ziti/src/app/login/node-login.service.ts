@@ -1,17 +1,17 @@
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "open-ziti-console-lib";
+import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "open-ziti-console-lib";
 import {Router} from "@angular/router";
-import {LoginServiceClass} from "./login-service.class";
 import {Observable, switchMap, catchError, lastValueFrom, of} from "rxjs";
 import {NodeSettingsService} from "../services/node-settings.service";
+import {isEmpty, defer} from "lodash";
 
 @Injectable({
     providedIn: 'root'
 })
 export class NodeLoginService extends LoginServiceClass {
     private domain = '';
-
+    private hasNodeSession = false;
     constructor(
         override httpClient: HttpClient,
         @Inject(SETTINGS_SERVICE) override settingsService: NodeSettingsService,
@@ -19,6 +19,10 @@ export class NodeLoginService extends LoginServiceClass {
         override growlerService: GrowlerService
     ) {
         super(httpClient, settingsService, router, growlerService);
+    }
+
+    init() {
+        return this.checkForValidNodeSession();
     }
 
     async login(prefix: string, url: string, username: string, password: string) {
@@ -55,9 +59,18 @@ export class NodeLoginService extends LoginServiceClass {
         );
     }
 
+    hasSession(): boolean {
+        return this.hasNodeSession;
+    }
+
+    logout() {
+        localStorage.removeItem('ziti.settings');
+        this.clearSession();
+    }
+
     private async handleLoginResponse(body: any): Promise<any> {
         if (body.success) {
-            await this.settingsService.checkForValidNodeSession();
+            await this.checkForValidNodeSession();
             this.settingsService.set(this.settingsService.settings);
             this.router.navigate(['/dashboard']);
         } else {
@@ -70,5 +83,60 @@ export class NodeLoginService extends LoginServiceClass {
             this.growlerService.show(growlerData);
         }
         return of([body.success]);
+    }
+
+    checkForValidNodeSession(): Promise<boolean> {
+        const serverUrl = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' +this.settingsService.settings.port;
+        const options = {
+            headers: {
+                accept: 'application/json',
+            },
+            params: {},
+            responseType: 'json' as const,
+        };
+        const apiUrl = serverUrl + '/api/data';
+        const body = {
+            type: 'identities',
+            paging: {
+                page: 1,
+                total: 1,
+                sort: "name",
+                order: "ASC",
+                filter: "",
+                noSearch: false
+            }
+        };
+        return this.httpClient.post(apiUrl, body, options).toPromise().then((resp: any) => {
+            //just checking for a non-error response to see if there is a valid session with the node server
+            this.hasNodeSession = isEmpty(resp?.error);
+            return this.hasNodeSession;
+        }).catch((resp) => {
+            this.hasNodeSession = false;
+            return false;
+        });
+    }
+
+    clearSession(): Promise<any>  {
+        const serverUrl = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' +this.settingsService.settings.port;
+        const apiUrl = serverUrl + '/login?logout=true';
+        const options = this.getHttpOptions();
+        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
+            if(isEmpty(resp?.error)) {
+                defer(() => {
+                    window.location.href = window.location.origin + '/ziti-console/login';
+                });
+            } else {
+                this.growlerService.show(
+                    new GrowlerModel(
+                        'error',
+                        'Error',
+                        'Logout Error',
+                        resp?.error,
+                    )
+                );
+            }
+        }).catch((resp) => {
+            return false;
+        });
     }
 }

@@ -1,5 +1,5 @@
 import {Component, OnInit, Inject} from '@angular/core';
-import {SettingsServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, ZITI_DOMAIN_CONTROLLER, LOGIN_SERVICE} from "open-ziti-console-lib";
 import { SimpleZitiDomainControllerService} from './services/simple-ziti-domain-controller.service';
 import { Router } from '@angular/router';
 
@@ -17,7 +17,12 @@ export class AppComponent implements OnInit {
     showModal = false;
     loading = true;
 
-    constructor(@Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass, @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService, private router: Router) {}
+    constructor(
+        @Inject(SETTINGS_SERVICE) private settingsService: SettingsServiceClass,
+        @Inject(ZITI_DOMAIN_CONTROLLER) private zitiControllerService: SimpleZitiDomainControllerService,
+        @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass,
+        private router: Router
+    ) {}
 
     ngOnInit() {
         this.loading = true;
@@ -27,12 +32,12 @@ export class AppComponent implements OnInit {
             this.displayTool = !results.hideTool ?? true;
             this.isAuthorized = results.session?.id;
             this.loading = false;
-            this.checkForValidNodeSession();
+            this.checkSession();
         });
     }
 
-    async checkForValidNodeSession() {
-        if (this.settingsService.hasSession()) {
+    async checkSession() {
+        if (this.loginService.hasSession()) {
             this.isAuthorized = true;
             return Promise.resolve();
         } else {

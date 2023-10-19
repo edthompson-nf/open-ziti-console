@@ -13,7 +13,7 @@ import {ZitiDataService} from "./ziti-data.service";
 @Injectable({
     providedIn: 'root'
 })
-export class ZitiNodeDataService extends ZitiDataService {
+export class NodeDataService extends ZitiDataService {
 
     DEFAULT_PAGING: any = {
         filter: "",
@@ -132,11 +132,6 @@ export class ZitiNodeDataService extends ZitiDataService {
                 })
             )
         );
-    }
-
-    override logout() {
-        localStorage.removeItem('ziti.settings');
-        this.settingsService.clearSession();
     }
 
     private getUrlFilter(paging: any) {

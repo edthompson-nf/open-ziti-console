@@ -1,9 +1,10 @@
 import {Injectable, Inject, InjectionToken} from '@angular/core';
-import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
+import {firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {isEmpty, defer} from "lodash";
 import {HttpBackend, HttpClient} from "@angular/common/http";
 import {SettingsServiceClass} from "./settings-service.class";
+import {GrowlerService} from "../features/messaging/growler.service";
 
 export const SETTINGS_SERVICE = new InjectionToken<SettingsService>('SETTINGS_SERVICE');
 
@@ -38,8 +39,8 @@ const DEFAULTS = {
 })
 export class SettingsService extends SettingsServiceClass {
 
-    constructor(override httpBackend: HttpBackend) {
-        super(httpBackend);
+    constructor(override httpBackend: HttpBackend, override growlerService: GrowlerService) {
+        super(httpBackend, growlerService);
     }
 
     init() {
@@ -51,27 +52,6 @@ export class SettingsService extends SettingsServiceClass {
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
         if (this.settings.selectedEdgeController) return this.initApiVersions(this.settings.selectedEdgeController);
         else return Promise.resolve();
-    }
-
-    hasSession() {
-        return !isEmpty(this.settings?.session?.id);
-    }
-
-    clearSession(): Promise<any>  {
-        const serverUrl = this.settings.protocol + '://' + this.settings.host + ':' +this.settings.port;
-        const apiUrl = serverUrl + '/login?logout=true';
-        const options = this.getHttpOptions();
-        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
-            if(isEmpty(resp?.error)) {
-                defer(() => {
-                    window.location.href = window.location.origin + '/login';
-                });
-            } else {
-                growler.error("Unknow error encountered when logging out");
-            }
-        }).catch((resp) => {
-            return false;
-        });
     }
 
     override controllerSave(name: string, url: string) {
@@ -124,4 +104,27 @@ export class SettingsService extends SettingsServiceClass {
         });
     }
 
+    public initApiVersions(url: string) {
+        url = url.split('#').join('').split('?').join('');
+        if (url.endsWith('/')) url = url.substr(0, url.length - 1);
+        if (!url.startsWith('https://')) url = 'https://' + url;
+        const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=false";
+        return firstValueFrom(this.httpClient.get(callUrl)
+            .pipe(
+                tap((body: any) => {
+                    try {
+                        if (body.error) {
+                            growler.error("Invalid Edge Controller: " + body.error);
+                        } else {
+                            this.apiVersions = body.data.apiVersions;
+                        }
+                    } catch (e) {
+                        growler.error("Invalid Edge Controller: " + body);
+                    }
+                }),
+                catchError((err: any) => {
+                    throw "Edge Controller not Online: " + err?.message;
+                }),
+                map(body => body.data.apiVersions)));
+    }
 }

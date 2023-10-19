@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
 import {isEmpty, defer} from "lodash";
 import {HttpBackend} from "@angular/common/http";
-import {SettingsServiceClass} from "open-ziti-console-lib";
+import {SettingsServiceClass, GrowlerService, GrowlerModel} from "open-ziti-console-lib";
+import {firstValueFrom, map, tap} from "rxjs";
+import {catchError} from "rxjs/operators";
 
 // @ts-ignore
 const {growler} = window;
@@ -12,8 +14,8 @@ const {growler} = window;
 export class NodeSettingsService extends SettingsServiceClass {
 
     hasNodeSession = false;
-    constructor(override httpBackend: HttpBackend) {
-        super(httpBackend);
+    constructor(override httpBackend: HttpBackend, override growlerService: GrowlerService) {
+        super(httpBackend, growlerService);
     }
 
     async init() {
@@ -23,7 +25,6 @@ export class NodeSettingsService extends SettingsServiceClass {
         if (this.settings.port && !isNaN(this.settings.port)) this.port = this.settings.port;
         if (this.settings.portTLS && !isNaN(this.settings.portTLS)) this.portTLS = this.settings.portTLS;
         if (this.settings.rejectUnauthorized && !isNaN(this.settings.rejectUnauthorized)) this.rejectUnauthorized = this.settings.rejectUnauthorized;
-        await this.checkForValidNodeSession();
         return Promise.resolve();
     }
 
@@ -43,31 +44,31 @@ export class NodeSettingsService extends SettingsServiceClass {
                 }
             }
         ).toPromise().then((result: any) => {
-            this.settings.selectedEdgeController = controllerURL;
-            this.settings.edgeControllers = result.edgeControllers;
-            this.set(this.settings);
-        });
-    }
-
-    override clearSession(): Promise<any>  {
-        const serverUrl = this.settings.protocol + '://' + this.settings.host + ':' +this.settings.port;
-        const apiUrl = serverUrl + '/login?logout=true';
-        const options = this.getHttpOptions();
-        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
-            if(isEmpty(resp?.error)) {
-                defer(() => {
-                    window.location.href = window.location.origin + '/ziti-console/login';
-                });
+            if (!isEmpty(result.error)) {
+                let growlerData = new GrowlerModel(
+                    'error',
+                    'Error',
+                    `Login Failed`,
+                    result.error,
+                );
+                this.growlerService.show(growlerData);
             } else {
-                growler.error("Unknow error encountered when logging out");
+                this.settings.selectedEdgeController = controllerURL;
+                this.settings.edgeControllers = result.edgeControllers;
+                this.set(this.settings);
             }
-        }).catch((resp) => {
-            return false;
+        }).catch((err) => {
+            let growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Login Failed`,
+                `Unable to connect - please make sure the URL is correct and the controller is online`,
+            );
+            this.growlerService.show(growlerData);
         });
     }
 
-    checkForValidNodeSession(): Promise<boolean> {
-        const serverUrl = this.settings.protocol + '://' + this.settings.host + ':' +this.settings.port;
+    public initApiVersions(url: string) {
         const options = {
             headers: {
                 accept: 'application/json',
@@ -75,25 +76,23 @@ export class NodeSettingsService extends SettingsServiceClass {
             params: {},
             responseType: 'json' as const,
         };
-        const apiUrl = serverUrl + '/api/data';
-        const body = {
-            type: 'identities',
-            paging: {
-                page: 1,
-                total: 1,
-                sort: "name",
-                order: "ASC",
-                filter: "",
-                noSearch: false
-            }
-        };
-        return this.httpClient.post(apiUrl, body, options).toPromise().then((resp: any) => {
-            //just checking for a non-error response to see if there is a valid session with the node server
-            this.hasNodeSession = isEmpty(resp?.error);
-            return this.hasNodeSession;
-        }).catch((resp) => {
-            this.hasNodeSession = false;
-            return false;
-        });
+        const callUrl = "/api/version";
+        return firstValueFrom(this.httpClient.post(callUrl, {}, options)
+            .pipe(
+                tap((body: any) => {
+                    try {
+                        if (body.error) {
+                            growler.error("Invalid Edge Controller: " + body.error);
+                        } else {
+                            this.apiVersions = body.data.apiVersions;
+                        }
+                    } catch (e) {
+                        growler.error("Invalid Edge Controller: " + body);
+                    }
+                }),
+                catchError((err: any) => {
+                    throw "Edge Controller not Online: " + err?.message;
+                }),
+                map(body => body.data.apiVersions)));
     }
 }

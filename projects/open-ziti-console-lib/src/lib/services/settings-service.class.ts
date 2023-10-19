@@ -3,6 +3,7 @@ import {isEmpty, defer} from "lodash";
 import {HttpBackend, HttpClient} from "@angular/common/http";
 import {BehaviorSubject, firstValueFrom, map, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
+import {GrowlerService} from "../features/messaging/growler.service";
 
 // @ts-ignore
 const {service, growler, context, page, settings} = window;
@@ -47,14 +48,13 @@ export abstract class SettingsServiceClass {
     host = DEFAULTS.host;
     httpClient: HttpClient;
 
-    constructor(protected httpBackend: HttpBackend) {
+    constructor(protected httpBackend: HttpBackend, protected growlerService: GrowlerService) {
         this.httpClient = new HttpClient(httpBackend);
     }
 
     public abstract init();
-    public abstract clearSession();
     public abstract controllerSave(name: string, url: string);
-    public abstract hasSession();
+    public abstract initApiVersions(url);
 
     public get() {
         const tmp = localStorage.getItem('ziti.settings');
@@ -110,29 +110,5 @@ export abstract class SettingsServiceClass {
         } else {
             this.controllerSave(name, url);
         }
-    }
-
-    public initApiVersions(url: string) {
-        url = url.split('#').join('').split('?').join('');
-        if (url.endsWith('/')) url = url.substr(0, url.length - 1);
-        if (!url.startsWith('https://')) url = 'https://' + url;
-        const callUrl = url + "/edge/management/v1/version?rejectUnauthorized=false";
-        return firstValueFrom(this.httpClient.get(callUrl)
-            .pipe(
-                tap((body: any) => {
-                    try {
-                        if (body.error) {
-                            growler.error("Invalid Edge Controller: " + body.error);
-                        } else {
-                            this.apiVersions = body.data.apiVersions;
-                        }
-                    } catch (e) {
-                        growler.error("Invalid Edge Controller: " + body);
-                    }
-                }),
-                catchError((err: any) => {
-                    throw "Edge Controller not Online: " + err?.message;
-                }),
-                map(body => body.data.apiVersions)));
     }
 }

@@ -3,9 +3,8 @@ import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest}
 import {map} from 'rxjs/operators';
 
 import {BehaviorSubject, filter, finalize, Observable, of, switchMap, take} from 'rxjs';
-import {SettingsServiceClass, SETTINGS_SERVICE} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
 import moment from "moment/moment";
-import {LOGIN_SERVICE, LoginServiceClass} from "../login/login-service.class";
 import {Router} from "@angular/router";
 
 /** Pass untouched request through to the next request handler. */

@@ -1,7 +1,6 @@
 import {Inject, Component, OnDestroy, OnInit} from '@angular/core';
-import {SettingsServiceClass, SETTINGS_SERVICE} from "open-ziti-console-lib";
+import {SettingsServiceClass, LoginServiceClass, SETTINGS_SERVICE, LOGIN_SERVICE} from "open-ziti-console-lib";
 import {Subscription} from "rxjs";
-import {LOGIN_SERVICE, LoginServiceClass} from "./login-service.class";
 
 // @ts-ignore
 const {growler, context} = window;
@@ -73,7 +72,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.userLogin = true;
     }
 
-    edgeChanged() {
+    edgeChanged(event?) {
         this.edgeNameError = '';
         this.edgeUrlError = '';
         if (this.selectedEdgeController) {

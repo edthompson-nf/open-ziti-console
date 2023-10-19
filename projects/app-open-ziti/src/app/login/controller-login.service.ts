@@ -1,12 +1,11 @@
 import {Injectable, Inject} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "open-ziti-console-lib";
+import {LoginServiceClass, SettingsServiceClass, GrowlerService, GrowlerModel, SETTINGS_SERVICE} from "open-ziti-console-lib";
 import {firstValueFrom, lastValueFrom, Observable, ObservableInput, of, switchMap, tap} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import moment from "moment";
-import {debounce, delay, isEmpty} from "lodash";
-import {LoginServiceClass} from "./login-service.class";
+import {debounce, defer, isEmpty} from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -18,9 +17,14 @@ export class ControllerLoginService extends LoginServiceClass {
         override httpClient: HttpClient,
         @Inject(SETTINGS_SERVICE) override settingsService: SettingsServiceClass,
         override router: Router,
-        override growlerService: GrowlerService
+        override growlerService: GrowlerService,
+
     ) {
         super(httpClient, settingsService, router, growlerService);
+    }
+
+    async init() {
+        return Promise.resolve();
     }
 
     async login(prefix: string, url: string, username: string, password: string) {
@@ -51,9 +55,27 @@ export class ControllerLoginService extends LoginServiceClass {
                     return this.handleLoginResponse.bind(this)(body, username, password)
                 }),
                 catchError((err: any) => {
-                    const error = "Server Not Accessible";
-                    if (err.code != "ECONNREFUSED") throw({error: err.code});
-                    throw({error: error});
+                    let errorMessage, growlerData;
+                    if (err.code === "ECONNREFUSED") {
+                        errorMessage = `Server Not Accessible. Please make sure controller is online.`;
+                        growlerData = new GrowlerModel(
+                            'error',
+                            'Error',
+                            `Login Failed`,
+                            errorMessage,
+                        );
+                    } else {
+                        const code = ('- ' + err?.error?.code) || '';
+                        errorMessage = `Unable to login to selected edge controller ${code}`;
+                        growlerData = new GrowlerModel(
+                            'error',
+                            'Error',
+                            `Login Failed`,
+                            errorMessage,
+                        );
+                    }
+                    this.growlerService.show(growlerData);
+                    throw({error: errorMessage});
                 })
             );
     }
@@ -72,5 +94,40 @@ export class ControllerLoginService extends LoginServiceClass {
         }
         this.settingsService.set(settings);
         return of([body.data?.token]);
+    }
+
+    hasSession() {
+        return !isEmpty(this.settingsService?.settings?.session?.id);
+    }
+
+    logout() {
+        localStorage.removeItem('ziti.settings');
+        this.settingsService.settings.session.id = undefined;
+        this.settingsService.set(this.settingsService.settings);
+        this.router.navigate(['/login']);
+    }
+
+    clearSession(): Promise<any>  {
+        const serverUrl = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+        const apiUrl = serverUrl + '/login?logout=true';
+        const options = this.getHttpOptions();
+        return this.httpClient.get(apiUrl, options).toPromise().then((resp: any) => {
+            if(isEmpty(resp?.error)) {
+                defer(() => {
+                    window.location.href = window.location.origin + '/login';
+                });
+            } else {
+                this.growlerService.show(
+                    new GrowlerModel(
+                        'error',
+                        'Error',
+                        'Logout Error',
+                        resp?.error,
+                    )
+                );
+            }
+        }).catch((resp) => {
+            return false;
+        });
     }
 }

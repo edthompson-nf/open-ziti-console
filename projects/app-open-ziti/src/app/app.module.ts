@@ -18,7 +18,7 @@ import {
     GrowlerModule,
     DeactivateGuardService,
     ZitiDataService,
-    ZitiNodeDataService,
+    NodeDataService,
     ZitiControllerDataService,
     SETTINGS_SERVICE,
     ZITI_DATA_SERVICE,
@@ -28,6 +28,7 @@ import {
     ZITI_TAB_OVERRIDES,
     ZITI_URLS,
     DEACTIVATE_GUARD,
+    LOGIN_SERVICE
 } from "open-ziti-console-lib";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -41,7 +42,6 @@ import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
 import {ErrorInterceptor} from "./interceptors/error-handler.interceptor";
 import {LoggingInterceptor} from "./interceptors/logging.interceptor";
 import {ControllerLoginService} from "./login/controller-login.service";
-import {LOGIN_SERVICE} from "./login/login-service.class"
 import {NodeLoginService} from "./login/node-login.service";
 import {NodeSettingsService} from "./services/node-settings.service";
 import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
@@ -49,7 +49,7 @@ import {NoopHttpInterceptor} from "./interceptors/noop-http.interceptor";
 let loginService, zitiDataService, settingsService, wrapperService, apiInterceptor;
 if (environment.nodeIntegration) {
     loginService = NodeLoginService;
-    zitiDataService = ZitiNodeDataService;
+    zitiDataService = NodeDataService;
     settingsService = NodeSettingsService;
     wrapperService = NodeWrapperService;
     apiInterceptor = NoopHttpInterceptor;

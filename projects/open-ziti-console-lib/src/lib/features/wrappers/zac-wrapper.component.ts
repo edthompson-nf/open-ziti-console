@@ -34,21 +34,19 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
     this.wrapperService.initZac();
     this.subscription.add(
     this.wrapperService.pageChanged.subscribe(() => {
-      if (this.waitingForSession && !this.settingsService?.hasSession()) {
+      if (this.waitingForSession) {
         return;
       }
       this.loadPage();
     }));
     this.settingsService.settingsChange.subscribe((results:any) => {
-        if (this.settingsService.hasSession()) {
-          if (this.waitingForSession && !this.pageLoading) {
-              this.pageLoading = true;
-              delay(async () => {
-                await this.loadPage();
-                this.waitingForSession = false;
-                this.pageLoading = false;
-              }, 200)
-          }
+        if (this.waitingForSession && !this.pageLoading) {
+            this.pageLoading = true;
+            delay(async () => {
+              await this.loadPage();
+              this.waitingForSession = false;
+              this.pageLoading = false;
+            }, 200)
         }
     });
     defer(() => {

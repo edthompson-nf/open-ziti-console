@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { ZacWrapperServiceClass } from '../../wrappers/zac-wrapper-service.class';
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../../services/ziti-data.service";
 import {ZAC_WRAPPER_SERVICE} from "../../wrappers/zac-wrapper-service.class";
-
+import { LOGIN_SERVICE, LoginServiceClass } from '../../../services/login-service.class';
 
 @Component({
   selector: 'lib-side-toolbar',
@@ -21,7 +21,7 @@ export class SideToolbarComponent {
       @Inject(SETTINGS_SERVICE) private settingsService: SettingsService,
       private router: Router,
       @Inject(ZAC_WRAPPER_SERVICE) private zacService: ZacWrapperServiceClass,
-      @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService
+      @Inject(LOGIN_SERVICE) private loginService: LoginServiceClass
   ) {}
 
   ngOnInit() {
@@ -60,6 +60,6 @@ export class SideToolbarComponent {
   }
 
   doLogout() {
-    this.zitiService.logout();
+    this.loginService.logout();
   }
 }
