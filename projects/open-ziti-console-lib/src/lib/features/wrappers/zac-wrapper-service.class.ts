@@ -5,6 +5,7 @@ import {ZITI_URLS} from "../../open-ziti.constants";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {HttpClient} from "@angular/common/http";
 import {Subscription} from "rxjs";
+import $ from 'jquery';
 
 export const ZAC_WRAPPER_SERVICE = new InjectionToken<ZacWrapperServiceClass>('ZAC_WRAPPER_SERVICE');
 
@@ -31,4 +32,11 @@ export abstract class ZacWrapperServiceClass {
     public abstract loadCurrentPage()
     public abstract initZACButtonListener();
     protected abstract initZacListeners();
+
+    resetZacEvents() {
+        window['$']("input").off("keyup");
+        window['$']("select").off("keyup");
+        window['$'](".toggle").off("click");
+        window['$']("body").off("keyup");
+    }
 }

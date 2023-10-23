@@ -290,3 +290,14 @@ lib-form-field-container {
     }
   }
 }
+
+.ag-cell {
+  .cell-name-renderer {
+    strong {
+      &:hover {
+        cursor: pointer;
+        color: var(--primary);
+      }
+    }
+  }
+}

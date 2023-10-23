@@ -1,11 +1,12 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ZAC_WRAPPER_SERVICE, ZacWrapperServiceClass} from "./zac-wrapper-service.class";
-import {delay, invoke, isEmpty, defer, set} from 'lodash';
+import {delay, invoke, isEmpty, defer, set, get} from 'lodash';
 import {Subscription} from "rxjs";
 import {SettingsService, SETTINGS_SERVICE} from "../../services/settings.service";
 import {LoggerService} from "../messaging/logger.service";
 
 import $ from 'jquery';
+const context = window['context'];
 
 @Component({
     selector: 'app-zac-wrapper',
@@ -63,6 +64,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.pageHtml = await this.wrapperService.loadCurrentPage();
     defer(() => {
+      this.wrapperService.resetZacEvents();
       this.executePageScripts();
     });
   }
@@ -86,6 +88,7 @@ export class ZacWrapperComponent implements OnInit, OnDestroy {
         set(window, 'context.watchers', []);
         set(window, 'context.eventWatchers', []);
         invoke(window, 'app.init');
+        context.addListener(get(window, 'page.filterObject.name'), this.wrapperService.initZACButtonListener);
       }catch(err) {
         this.loggerService.error('error initializing page scripts');
       } finally {

@@ -14,6 +14,7 @@ export abstract class ListPageComponent {
     endCount = '-';
     totalCount = '-';
     itemsSelected = false;
+    selectedItems: any[] = [];
     columnDefs: any = [];
     rowData = [];
     filterApplied = false;
@@ -41,9 +42,11 @@ export abstract class ListPageComponent {
 
     updateSelectedItems() {
         let itemSelected = false;
+        this.selectedItems = [];
         this.rowData.forEach((item) => {
             if (item.selected) {
                 itemSelected = true;
+                this.selectedItems.push(item);
             }
         });
         this.itemsSelected = itemSelected;

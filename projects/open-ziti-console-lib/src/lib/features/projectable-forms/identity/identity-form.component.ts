@@ -82,6 +82,7 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
     this.enrollmentExpiration = this.identitiesService.getEnrollmentExpiration(this.formData);
     this.getAssociatedServices();
     this.getAssociatedServicePolicies();
+    this.getAuthPolicies();
     this.initData = cloneDeep(this.formData);
     this.watchData();
   }
@@ -97,7 +98,6 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   getAssociatedServices() {
     this.zitiService.getSubdata('identities', this.formData.id, 'services').then((result: any) => {
-      console.log(result);
       this.associatedServices = result.data;
       this.associatedServiceNames = this.associatedServices.map((svc) => {
         return svc.name;
@@ -107,11 +107,25 @@ export class IdentityFormComponent extends ProjectableForm implements OnInit, On
 
   getAssociatedServicePolicies() {
     this.zitiService.getSubdata('identities', this.formData.id, 'service-policies').then((result: any) => {
-      console.log(result);
       this.associatedServicePolicies = result.data;
       this.associatedServicePolicyNames = this.associatedServicePolicies.map((policy) => {
         return policy.name;
       });
+    });
+  }
+
+  getAuthPolicies() {
+    const paging = {
+      filter: "",
+      noSearch: true,
+      order: "asc",
+      page: 1,
+      searchOn: "name",
+      sort: "name",
+      total: 100
+    }
+    this.zitiService.get('auth-policies', paging, []).then((result: any) => {
+      this.authPolicies = [{id: 'default', name: 'Default'}, ...result.data];
     });
   }
 

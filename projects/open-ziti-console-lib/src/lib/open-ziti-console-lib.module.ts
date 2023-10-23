@@ -60,6 +60,9 @@ import { TagSelectorComponent } from './features/tag-selector/tag-selector.compo
 import { QrCodeComponent } from './features/qr-code/qr-code.component';
 import { TableCellTokenComponent } from './features/data-table/cells/table-cell-token/table-cell-token.component';
 import {GrowlerModule} from "./features/messaging/growler.module";
+import { TableCellNameComponent } from './features/data-table/cells/table-cell-name/table-cell-name.component';
+import {OSTooltipComponent} from './features/data-table/tooltips/os-tooltip.component'
+import {SDKTooltipComponent} from "./features/data-table/tooltips/sdk-tooltip.component";
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -111,6 +114,9 @@ export function playerFactory() {
         TagSelectorComponent,
         QrCodeComponent,
         TableCellTokenComponent,
+        TableCellNameComponent,
+        OSTooltipComponent,
+        SDKTooltipComponent
     ],
     imports: [
         CommonModule,

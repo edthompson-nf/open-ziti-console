@@ -14,13 +14,14 @@
                     [emptyMsg]="'No Identities defined, Click the plus to add an Identity.'"
                     [filterApplied]="filterApplied"
                     [menuItems]="svc.menuItems"
+                    [headerActions]="svc.tableHeaderActions"
     >
     </lib-data-table>
 </div>
-<lib-side-modal [(open)]="modalOpen" [showClose]="false">
+<lib-side-modal [(open)]="svc.modalOpen" [showClose]="false">
     <lib-identity-form
-        *ngIf="modalOpen"
-        [formData]="selectedIdentity"
+        *ngIf="svc.modalOpen"
+        [formData]="svc.selectedIdentity"
         [identityRoleAttributes]="identityRoleAttributes"
         (close)="closeModal($event)"
         (dataChange)="dataChanged($event)"
