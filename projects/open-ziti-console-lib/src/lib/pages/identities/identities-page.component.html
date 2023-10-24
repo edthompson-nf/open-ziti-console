@@ -18,13 +18,18 @@
     >
     </lib-data-table>
 </div>
-<lib-side-modal [(open)]="svc.modalOpen" [showClose]="false">
+<lib-side-modal [(open)]="svc.sideModalOpen" [showClose]="false">
     <lib-identity-form
-        *ngIf="svc.modalOpen"
+        *ngIf="svc.modalType === 'identity' && svc.sideModalOpen"
         [formData]="svc.selectedIdentity"
         [identityRoleAttributes]="identityRoleAttributes"
         (close)="closeModal($event)"
         (dataChange)="dataChanged($event)"
     ></lib-identity-form>
+    <lib-overrides
+            *ngIf="svc.modalType === 'overrides' && svc.sideModalOpen"
+            [identity]="svc.selectedIdentity"
+            (close)="closeModal($event)"
+    ></lib-overrides>
 </lib-side-modal>
 <lib-loading-indicator *ngIf="isLoading" [isLoading]="isLoading"></lib-loading-indicator>

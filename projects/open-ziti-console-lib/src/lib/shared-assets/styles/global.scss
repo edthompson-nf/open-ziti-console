@@ -291,6 +291,75 @@ lib-form-field-container {
   }
 }
 
+.form-title-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  .form-title {
+    width: 100%;
+    flex: 1 1 auto;
+    width: 100%;
+    flex: 1 1 auto;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--tableText);
+    margin-left: 7px;
+    min-width: 130px;
+    text-wrap: nowrap;
+
+    &.title-name {
+      color: var(--primary);
+      margin-left: 5px;
+    }
+  }
+
+  .form-title-back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transform: scaleY(.8);
+    cursor: pointer;
+    padding-right: 6px;
+    margin-top: 2px;
+    margin-left: 4px;
+    transition: 0.3s;
+
+    &:hover {
+      background-color: #ffffff;
+      border-radius: 7px;
+      filter: brightness(90%);
+      transition: 0.3s;
+    }
+
+    &:active {
+      background-color: #ffffff;
+      border-radius: 7px;
+      filter: brightness(80%);
+      transition: 0.3s;
+    }
+
+    .form-title-back-button-image {
+      background-image: url(/assets/svgs/ArrowDownDark.svg);
+      background-size: 20px 14px;
+      width: 20px;
+      height: 14px;
+      transform: rotate(90deg);
+    }
+
+    .form-title-back-button-line {
+      border-color: var(--tableText);
+      border-style: solid;
+      border-left-width: 1px;
+      border-right-width: 1px;
+      width: 14px;
+      position: absolute;
+      left: 8px;
+    }
+  }
+}
+
 .ag-cell {
   .cell-name-renderer {
     strong {

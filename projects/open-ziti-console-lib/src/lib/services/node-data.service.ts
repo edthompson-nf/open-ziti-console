@@ -9,6 +9,7 @@ import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
 import {isEmpty, get} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
+import moment from "moment";
 
 @Injectable({
     providedIn: 'root'
@@ -106,6 +107,64 @@ export class NodeDataService extends ZitiDataService {
         const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
         const serviceUrl = nodeServerURL + '/api/subdata';
         const body = {url:`./${entityType}/${id}/${dataType}`, name: entityType, type: dataType };
+        return firstValueFrom(this.httpClient.post(serviceUrl, body, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    override saveSubdata(entityType: string, id: any, dataType: string, data: any): Promise<any> {
+        const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+        const serviceUrl = nodeServerURL + '/api/subSave';
+        const body = {
+            type: dataType,
+            parentType: entityType,
+            id: id,
+            doing: "POST",
+            save: data
+        }
+        return firstValueFrom(this.httpClient.post(serviceUrl, body, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    override resetEnrollment(id: string, date: any): Promise<any> {
+        const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+        const serviceUrl = nodeServerURL + '/api/resetEnroll';
+        const dateStr = moment(date).format("M/D/YYYY hh:mm A");
+        const body = {
+            date: dateStr,
+            id: id
+        }
+        return firstValueFrom(this.httpClient.post(serviceUrl, body, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    override deleteSubdata(entityType: string, id: any, dataType: string, data: any): Promise<any> {
+        const nodeServerURL = this.settingsService.settings.protocol + '://' + this.settingsService.settings.host + ':' + this.settingsService.settings.port;
+        const serviceUrl = nodeServerURL + '/api/subSave';
+        const body = {
+            type: dataType,
+            parentType: entityType,
+            id: id,
+            doing: "DELETE",
+            save: data
+        }
         return firstValueFrom(this.httpClient.post(serviceUrl, body, {}).pipe(
                 catchError((err: any) => {
                     const error = "Server Not Accessible";

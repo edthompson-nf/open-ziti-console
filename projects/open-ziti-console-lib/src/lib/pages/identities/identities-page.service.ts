@@ -16,6 +16,8 @@ import {ITooltipAngularComp} from "ag-grid-angular";
 import {ITooltipParams} from "ag-grid-community";
 import {OSTooltipComponent} from "../../features/data-table/tooltips/os-tooltip.component";
 import {SDKTooltipComponent} from "../../features/data-table/tooltips/sdk-tooltip.component";
+import {GrowlerModel} from "../../features/messaging/growler.model";
+import {GrowlerService} from "../../features/messaging/growler.service";
 
 const CSV_COLUMNS = [
     {label: 'Name', path: 'name'},
@@ -33,7 +35,9 @@ const CSV_COLUMNS = [
 export class IdentitiesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
-    public modalOpen = false;
+    public sideModalOpen = false;
+    public modalType = 'identity';
+
     selectedIdentity: any = new Identity();
     columnFilters: any = {
         name: '',
@@ -45,6 +49,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Edit', action: 'update'},
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'View QR', action: 'qr-code'},
+        {name: 'Reset Enrollment', action: 'reset-enrollment'},
         {name: 'Override', action: 'override'},
         {name: 'Delete', action: 'delete'},
     ]
@@ -58,7 +63,8 @@ export class IdentitiesPageService extends ListPageServiceClass {
         @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
         @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
-        override csvDownloadService: CsvDownloadService
+        override csvDownloadService: CsvDownloadService,
+        private growlerService: GrowlerService
     ) {
         super(settings, filterService, csvDownloadService);
     }
@@ -237,7 +243,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'override', 'delete'];
+            row.actionList = ['update', 'reset-enrollment', 'override', 'delete'];
             if (this.hasEnrolmentToken(row)) {
                 const expiration = moment(this.getEnrollmentExpiration(row));
                 if (expiration.isBefore()) {
@@ -308,6 +314,36 @@ export class IdentitiesPageService extends ListPageServiceClass {
             });
     }
 
+    resetEnrollment(identity: any, date: any) {
+        let id = identity?.authenticators?.cert?.id;
+        if (!id) {
+            if(!isEmpty(identity?.enrollment?.ott)) {
+                id = identity?.enrollment?.ott.id;
+            } else if(!isEmpty(identity?.enrollment.ottca)) {
+                id = identity?.enrollment?.ottca.id;
+            } else if (!isEmpty(identity?.enrollment.updb)) {
+                id = identity?.enrollment?.updb.id;
+            }
+        }
+        return this.dataService.resetEnrollment(id, date).then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `Enrollment Reset`,
+                `Successfully reissued enrollment token`,
+            );
+            this.growlerService.show(growlerData);
+        }).catch((error) => {
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Reset Failed`,
+                `Failed to reissues enrollment token`,
+            );
+            this.growlerService.show(growlerData);
+        });
+    }
+
     downloadItems(selectedItems) {
         this.csvDownloadService.download(
             'identities.csv',
@@ -321,6 +357,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
     }
 
     public openUpdate(item?: any) {
+        this.modalType = 'identity';
         if (item) {
             this.selectedIdentity = item;
             this.selectedIdentity.badges = [];
@@ -341,6 +378,12 @@ export class IdentitiesPageService extends ListPageServiceClass {
         } else {
             this.selectedIdentity = new Identity();
         }
-        this.modalOpen = true;
+        this.sideModalOpen = true;
+    }
+
+    public openOverridesModal(item) {
+        this.modalType = 'overrides';
+        this.selectedIdentity = item;
+        this.sideModalOpen = true;
     }
 }

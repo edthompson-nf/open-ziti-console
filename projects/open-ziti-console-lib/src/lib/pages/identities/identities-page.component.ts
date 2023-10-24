@@ -72,7 +72,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   closeModal(event?) {
-    this.svc.modalOpen = false;
+    this.svc.sideModalOpen = false;
     if(event?.refresh) {
       this.refreshData();
       this.getIdentityRoleAttributes();
@@ -118,13 +118,19 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.svc.openUpdate();
         break;
       case 'override':
-        this.getOverrides(event.item)
+        this.svc.openOverridesModal(event.item);
         break;
       case 'delete':
         this.deleteItem(event.item)
         break;
       case 'download-enrollment':
         this.downloadJWT(event.item)
+        break;
+      case 'reset-enrollment':
+        const date = moment().add(2, 'days');
+        this.svc.resetEnrollment(event.item, date).then(() => {
+          this.refreshData();
+        });
         break;
       case 'qr-code':
         this.showQRCode(event.item)
@@ -138,16 +144,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       default:
         break;
     }
-  }
-
-  getOverrides(item: any) {
-    window['page']['getOverrides'](item.id);
-    $("body").addClass('updateModalOpen');
-    defer(() => {
-      $(".modal .close").click(() => {
-        $("body").removeClass('updateModalOpen');
-      });
-    });
   }
 
   downloadJWT(item: any) {
@@ -178,7 +174,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   canDeactivate() {
-    if (this.formDataChanged && this.svc.modalOpen) {
+    if (this.formDataChanged && this.svc.sideModalOpen) {
       return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
     }
     return true;

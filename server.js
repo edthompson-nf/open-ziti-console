@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 
 app.use('/', express.static('dist/app-open-ziti'));
+app.use('/:name', express.static('dist/app-open-ziti'));
 
 app.listen(port, () => {
     console.log('Server started http://localhost:8083');

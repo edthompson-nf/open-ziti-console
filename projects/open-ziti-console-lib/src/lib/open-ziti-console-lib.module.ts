@@ -63,6 +63,7 @@ import {GrowlerModule} from "./features/messaging/growler.module";
 import { TableCellNameComponent } from './features/data-table/cells/table-cell-name/table-cell-name.component';
 import {OSTooltipComponent} from './features/data-table/tooltips/os-tooltip.component'
 import {SDKTooltipComponent} from "./features/data-table/tooltips/sdk-tooltip.component";
+import { OverridesComponent } from './features/overrides/overrides.component';
 
 export function playerFactory() {
     return import(/* webpackChunkName: 'lottie-web' */ 'lottie-web');
@@ -116,7 +117,8 @@ export function playerFactory() {
         TableCellTokenComponent,
         TableCellNameComponent,
         OSTooltipComponent,
-        SDKTooltipComponent
+        SDKTooltipComponent,
+        OverridesComponent
     ],
     imports: [
         CommonModule,
