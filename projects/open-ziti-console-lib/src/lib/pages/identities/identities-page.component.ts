@@ -15,7 +15,6 @@ import {ConsoleEventsService} from "../../services/console-events.service";
 import {Identity} from "../../models/identity";
 import {QrCodeComponent} from "../../features/qr-code/qr-code.component";
 
-
 @Component({
   selector: 'lib-identities',
   templateUrl: './identities-page.component.html',
@@ -25,7 +24,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   title = 'Identity Management'
   tabs: { url: string, label: string }[] ;
-  selectedIdentity: any = new Identity();
   dialogRef: any;
   isLoading = false;
   identityRoleAttributes: any[] = [];
@@ -48,6 +46,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
     this.zacWrapperService.zitiUpdated.subscribe(() => {
       this.refreshData();
     });
+    this.zacWrapperService.resetZacEvents();
     this.getIdentityRoleAttributes();
     super.ngOnInit();
   }
@@ -55,10 +54,10 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   headerActionClicked(action: string) {
     switch(action) {
       case 'add':
-        this.openUpdate();
+        this.svc.openUpdate();
         break;
       case 'edit':
-        this.openUpdate();
+        this.svc.openUpdate();
         break;
       case 'delete':
         const selectedItems = this.rowData.filter((row) => {
@@ -66,14 +65,14 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         }).map((row) => {
           return row.id;
         });
-        this.openBulkDelete(selectedItems)
+        this.openBulkDelete(selectedItems);
         break;
       default:
     }
   }
 
   closeModal(event?) {
-    this.modalOpen = false;
+    this.svc.sideModalOpen = false;
     if(event?.refresh) {
       this.refreshData();
       this.getIdentityRoleAttributes();
@@ -82,30 +81,6 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
 
   dataChanged(event) {
     this.formDataChanged = event;
-  }
-
-  private openUpdate(item?: any) {
-    if (item) {
-      this.selectedIdentity = item;
-      this.selectedIdentity.badges = [];
-      if (this.selectedIdentity.hasApiSession || this.selectedIdentity.hasEdgeRouterConnection) {
-        this.selectedIdentity.badges.push({label: 'Online', class: 'online', circle: 'true'});
-      } else {
-        this.selectedIdentity.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
-      }
-      if (this.selectedIdentity.enrollment?.ott) {
-        this.selectedIdentity.badges.push({label: 'Unregistered', class: 'unreg'});
-      }
-      this.selectedIdentity.moreActions = [
-        {name: 'open-metrics', label: 'Open Metrics'},
-        {name: 'dial-logs', label: 'Dial Logs'},
-        {name: 'dial-logs', label: 'View Events'},
-      ];
-      unset(this.selectedIdentity, '_links');
-    } else {
-      this.selectedIdentity = new Identity();
-    }
-    this.modalOpen = true;
   }
 
   private openBulkDelete(selectedItems: any[]) {
@@ -137,13 +112,13 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
         this.itemToggled(event.item)
         break;
       case 'update':
-        this.openUpdate(event.item);
+        this.svc.openUpdate(event.item);
         break;
       case 'create':
-        this.openUpdate()
+        this.svc.openUpdate();
         break;
       case 'override':
-        this.getOverrides(event.item)
+        this.svc.openOverridesModal(event.item);
         break;
       case 'delete':
         this.deleteItem(event.item)
@@ -151,32 +126,24 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
       case 'download-enrollment':
         this.downloadJWT(event.item)
         break;
+      case 'reset-enrollment':
+        const date = moment().add(2, 'days');
+        this.svc.resetEnrollment(event.item, date).then(() => {
+          this.refreshData();
+        });
+        break;
       case 'qr-code':
         this.showQRCode(event.item)
+        break;
+      case 'download-all':
+        this.svc.downloadAllItems();
+        break;
+      case 'download-selected':
+        this.svc.downloadItems(this.selectedItems);
         break;
       default:
         break;
     }
-  }
-
-  editItem(item: any) {
-    window['page']['edit'](item.id);
-    $("body").addClass('updateModalOpen');
-    defer(() => {
-      $(".modal .close").click(() => {
-        $("body").removeClass('updateModalOpen');
-      });
-    });
-  }
-
-  getOverrides(item: any) {
-    window['page']['getOverrides'](item.id);
-    $("body").addClass('updateModalOpen');
-    defer(() => {
-      $(".modal .close").click(() => {
-        $("body").removeClass('updateModalOpen');
-      });
-    });
   }
 
   downloadJWT(item: any) {
@@ -197,7 +164,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   deleteItem(item: any) {
-    window['page']['filterObject']['delete']([item.id]);
+    this.openBulkDelete([item.id]);
   }
 
   getIdentityRoleAttributes() {
@@ -207,7 +174,7 @@ export class IdentitiesPageComponent extends ListPageComponent implements OnInit
   }
 
   canDeactivate() {
-    if (this.formDataChanged && this.modalOpen) {
+    if (this.formDataChanged && this.svc.sideModalOpen) {
       return confirm('You have unsaved changes. Do you want to leave this page and discard your changes or stay on this page?');
     }
     return true;

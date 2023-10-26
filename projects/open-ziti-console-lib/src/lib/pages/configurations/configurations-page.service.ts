@@ -9,6 +9,7 @@ import {
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
 import {SchemaService} from "../../services/schema.service";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
+import {CsvDownloadService} from "../../services/csv-download.service";
 
 @Injectable({
     providedIn: 'root'
@@ -17,8 +18,13 @@ export class ConfigurationsPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
 
-    constructor(private schemaSvc: SchemaService, @Inject(SETTINGS_SERVICE) settings: SettingsService, filterService: DataTableFilterService) {
-        super(settings, filterService);
+    constructor(
+        private schemaSvc: SchemaService,
+        @Inject(SETTINGS_SERVICE) settings: SettingsService,
+        filterService: DataTableFilterService,
+        csvDownloadService: CsvDownloadService
+    ) {
+        super(settings, filterService, csvDownloadService);
     }
 
     initTableColumns(): any {

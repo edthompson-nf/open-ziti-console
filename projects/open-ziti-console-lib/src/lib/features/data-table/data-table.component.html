@@ -19,6 +19,8 @@
             [gridOptions]="gridOptions"
             [modules]="gridModules"
             [rowData]="rowData"
+            [tooltipHideDelay]="20000"
+            [tooltipShowDelay]="0"
             class="ziti-ag-grid-table ag-theme-alpine rows"
             id="ItemGrid"
         >
@@ -31,6 +33,14 @@
             id="HeaderActionMenu"
     >
         <div (click)="resetTableColumns()" class="tActionRow" id="ResetTableButton">Restore Default Table</div>
+        <div
+            *ngFor="let headerAction of headerActions"
+            (click)="actionRequested.emit({ action: headerAction.action })"
+            class="tActionRow"
+            id="ResetTableButton"
+        >
+            {{headerAction.name}}
+        </div>
     </div>
     <div
             [ngClass]="{ open: openMenu }"

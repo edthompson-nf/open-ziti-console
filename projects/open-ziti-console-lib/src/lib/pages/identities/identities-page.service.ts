@@ -1,5 +1,5 @@
-import {Injectable, Inject} from "@angular/core";
-import {isEmpty} from 'lodash';
+import {Injectable, Inject, Component} from "@angular/core";
+import {cloneDeep, isEmpty} from 'lodash';
 import moment from 'moment';
 import {DataTableFilterService, FilterObj} from "../../features/data-table/data-table-filter.service";
 import {ListPageServiceClass} from "../../shared/list-page-service.class";
@@ -9,6 +9,25 @@ import {
 import {CallbackResults} from "../../features/list-page-features/list-page-form/list-page-form.component";
 import {SETTINGS_SERVICE, SettingsService} from "../../services/settings.service";
 import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.service";
+import {CsvDownloadService} from "../../services/csv-download.service";
+import {Identity} from "../../models/identity";
+import {unset} from "lodash";
+import {ITooltipAngularComp} from "ag-grid-angular";
+import {ITooltipParams} from "ag-grid-community";
+import {OSTooltipComponent} from "../../features/data-table/tooltips/os-tooltip.component";
+import {SDKTooltipComponent} from "../../features/data-table/tooltips/sdk-tooltip.component";
+import {GrowlerModel} from "../../features/messaging/growler.model";
+import {GrowlerService} from "../../features/messaging/growler.service";
+
+const CSV_COLUMNS = [
+    {label: 'Name', path: 'name'},
+    {label: 'OS', path: 'envInfo.os'},
+    {label: 'OS Version', path: 'envInfo.osVersion'},
+    {label: 'SDK', path: 'sdkInfo.version'},
+    {label: 'Type', path: 'typeId'},
+    {label: 'Is Admin', path: 'isAdmin'},
+    {label: 'Created At', path: 'createdAt'}
+];
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +35,10 @@ import {ZITI_DATA_SERVICE, ZitiDataService} from "../../services/ziti-data.servi
 export class IdentitiesPageService extends ListPageServiceClass {
 
     private paging = this.DEFAULT_PAGING;
+    public sideModalOpen = false;
+    public modalType = 'identity';
 
+    selectedIdentity: any = new Identity();
     columnFilters: any = {
         name: '',
         os: '',
@@ -27,16 +49,24 @@ export class IdentitiesPageService extends ListPageServiceClass {
         {name: 'Edit', action: 'update'},
         {name: 'Download JWT', action: 'download-enrollment'},
         {name: 'View QR', action: 'qr-code'},
+        {name: 'Reset Enrollment', action: 'reset-enrollment'},
         {name: 'Override', action: 'override'},
         {name: 'Delete', action: 'delete'},
+    ]
+
+    override tableHeaderActions = [
+        {name: 'Download All', action: 'download-all'},
+        {name: 'Download Selected', action: 'download-selected'},
     ]
 
     constructor(
         @Inject(SETTINGS_SERVICE) settings: SettingsService,
         filterService: DataTableFilterService,
-        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService
+        @Inject(ZITI_DATA_SERVICE) private zitiService: ZitiDataService,
+        override csvDownloadService: CsvDownloadService,
+        private growlerService: GrowlerService
     ) {
-        super(settings, filterService);
+        super(settings, filterService, csvDownloadService);
     }
 
     validate = (formData): Promise<CallbackResults> => {
@@ -45,7 +75,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     initTableColumns(): any {
         const nameRenderer = (row) => {
-            return `<div class="col" data-id="${row?.data?.id}">
+            return `<div class="col cell-name-renderer" data-id="${row?.data?.id}">
                 <span class="circle ${row?.data?.hasApiSession}" title="Api Session"></span>
                 <span class="circle ${row?.data?.hasEdgeRouterConnection}" title="Edge Router Connected"></span>
                 <strong>${row?.data?.name}</strong>
@@ -117,6 +147,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 headerName: 'Name',
                 headerComponent: TableColumnDefaultComponent,
                 headerComponentParams: this.headerComponentParams,
+                onCellClicked: (data) => {
+                    this.openUpdate(data.data);
+                },
                 resizable: true,
                 cellRenderer: nameRenderer,
                 cellClass: 'nf-cell-vert-align tCol',
@@ -132,6 +165,9 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 width: 100,
                 cellRenderer: osRenderer,
                 headerComponent: TableColumnDefaultComponent,
+                tooltipComponent: OSTooltipComponent,
+                tooltipField: 'envInfo',
+                tooltipComponentParams: { color: '#ececec' },
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
@@ -139,8 +175,10 @@ export class IdentitiesPageService extends ListPageServiceClass {
                 colId: 'sdk',
                 field: 'sdk',
                 headerName: 'SDK',
+                tooltipField: 'sdkInfo',
                 cellRenderer: sdkRenderer,
                 headerComponent: TableColumnDefaultComponent,
+                tooltipComponent: SDKTooltipComponent,
                 resizable: true,
                 cellClass: 'nf-cell-vert-align tCol',
             },
@@ -205,7 +243,7 @@ export class IdentitiesPageService extends ListPageServiceClass {
 
     private addActionsPerRow(results: any): any[] {
         return results.data.map((row) => {
-            row.actionList = ['update', 'override', 'delete'];
+            row.actionList = ['update', 'reset-enrollment', 'override', 'delete'];
             if (this.hasEnrolmentToken(row)) {
                 const expiration = moment(this.getEnrollmentExpiration(row));
                 if (expiration.isBefore()) {
@@ -265,5 +303,87 @@ export class IdentitiesPageService extends ListPageServiceClass {
             expiresAt = identity?.enrollment?.updb?.expiresAt;
         }
         return expiresAt;
+    }
+
+    downloadAllItems() {
+        const paging = cloneDeep(this.paging);
+        paging.total = 2000;
+        super.getTableData('identities', paging, undefined, undefined)
+            .then((results: any) => {
+                return this.downloadItems(results?.data);
+            });
+    }
+
+    resetEnrollment(identity: any, date: any) {
+        let id = identity?.authenticators?.cert?.id;
+        if (!id) {
+            if(!isEmpty(identity?.enrollment?.ott)) {
+                id = identity?.enrollment?.ott.id;
+            } else if(!isEmpty(identity?.enrollment.ottca)) {
+                id = identity?.enrollment?.ottca.id;
+            } else if (!isEmpty(identity?.enrollment.updb)) {
+                id = identity?.enrollment?.updb.id;
+            }
+        }
+        return this.dataService.resetEnrollment(id, date).then(() => {
+            const growlerData = new GrowlerModel(
+                'success',
+                'Success',
+                `Enrollment Reset`,
+                `Successfully reissued enrollment token`,
+            );
+            this.growlerService.show(growlerData);
+        }).catch((error) => {
+            const growlerData = new GrowlerModel(
+                'error',
+                'Error',
+                `Reset Failed`,
+                `Failed to reissues enrollment token`,
+            );
+            this.growlerService.show(growlerData);
+        });
+    }
+
+    downloadItems(selectedItems) {
+        this.csvDownloadService.download(
+            'identities.csv',
+            selectedItems,
+            CSV_COLUMNS,
+            false,
+            false,
+            undefined,
+            false
+        );
+    }
+
+    public openUpdate(item?: any) {
+        this.modalType = 'identity';
+        if (item) {
+            this.selectedIdentity = item;
+            this.selectedIdentity.badges = [];
+            if (this.selectedIdentity.hasApiSession || this.selectedIdentity.hasEdgeRouterConnection) {
+                this.selectedIdentity.badges.push({label: 'Online', class: 'online', circle: 'true'});
+            } else {
+                this.selectedIdentity.badges.push({label: 'Offline', class: 'offline', circle: 'false'});
+            }
+            if (this.selectedIdentity.enrollment?.ott) {
+                this.selectedIdentity.badges.push({label: 'Unregistered', class: 'unreg'});
+            }
+            this.selectedIdentity.moreActions = [
+                {name: 'open-metrics', label: 'Open Metrics'},
+                {name: 'dial-logs', label: 'Dial Logs'},
+                {name: 'dial-logs', label: 'View Events'},
+            ];
+            unset(this.selectedIdentity, '_links');
+        } else {
+            this.selectedIdentity = new Identity();
+        }
+        this.sideModalOpen = true;
+    }
+
+    public openOverridesModal(item) {
+        this.modalType = 'overrides';
+        this.selectedIdentity = item;
+        this.sideModalOpen = true;
     }
 }

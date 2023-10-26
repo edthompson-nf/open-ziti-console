@@ -25,5 +25,8 @@ export abstract class ZitiDataService {
   abstract patch(type, model, id): Promise<any>;
   abstract get(type: string, paging: any, filters: FilterObj[]): Promise<any>;
   abstract getSubdata(entityType: string, id: any, dataType: string): Promise<any>;
+  abstract saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
+  abstract deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any>;
   abstract delete(type: string, id: string): Promise<any>;
+  abstract resetEnrollment(id: string, any: string): Promise<any>;
 }

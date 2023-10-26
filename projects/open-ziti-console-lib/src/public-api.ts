@@ -19,6 +19,7 @@ export * from './lib/services/node-data.service';
 export * from './lib/services/ziti-controller-data.service';
 export * from './lib/services/ziti-domain-controller.service';
 export * from './lib/services/deactivate-guard.service';
+export * from './lib/services/csv-download.service';
 export * from './lib/features/projectable-forms/configuration/configuration-form.component';
 export * from './lib/features/extendable/extendable.component';
 export * from './lib/features/sidebars/side-toolbar/side-toolbar.component';

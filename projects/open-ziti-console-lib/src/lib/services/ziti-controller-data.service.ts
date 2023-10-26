@@ -7,8 +7,9 @@ import {firstValueFrom, map, Observable} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {FilterObj} from "../features/data-table/data-table-filter.service";
-import {isEmpty, get} from "lodash";
 import {ZitiDataService} from "./ziti-data.service";
+import {isEmpty, get} from "lodash";
+import moment from "moment";
 
 @Injectable({
     providedIn: 'root'
@@ -111,6 +112,52 @@ export class ZitiControllerDataService extends ZitiDataService {
         const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}`;
 
         return firstValueFrom(this.httpClient.get(url, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    saveSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any> {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}`;
+
+        return firstValueFrom(this.httpClient.post(url, params, {}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    deleteSubdata(entityType: string, id: any, dataType: string, params: any): Promise<any> {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const url = this.settingsService.settings.selectedEdgeController + `${prefix}/${entityType}/${id}/${dataType}`;
+
+        return firstValueFrom(this.httpClient.delete(url, {body: params}).pipe(
+                catchError((err: any) => {
+                    const error = "Server Not Accessible";
+                    if (err.code != "ECONNREFUSED") throw({error: err.code});
+                    throw({error: error});
+                })
+            )
+        );
+    }
+
+    override resetEnrollment(id: string, date: any): Promise<any> {
+        const apiVersions = this.settingsService.apiVersions || {};
+        const prefix = apiVersions["edge-management"]?.v1?.path || '/edge/management/v1';
+        const url = this.settingsService.settings.selectedEdgeController + `${prefix}/authenticators/${id.trim()}/re-enroll`;
+        const expiresAt = moment(date).utc().toISOString();
+        const body = { expiresAt: expiresAt };
+        return firstValueFrom(this.httpClient.post(url, body).pipe(
                 catchError((err: any) => {
                     const error = "Server Not Accessible";
                     if (err.code != "ECONNREFUSED") throw({error: err.code});

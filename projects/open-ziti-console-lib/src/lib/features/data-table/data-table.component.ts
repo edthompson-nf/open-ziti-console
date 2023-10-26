@@ -46,6 +46,7 @@ export class DataTableComponent implements OnChanges, OnInit {
   @Input() emptyMsg: any;
   @Input() filterApplied = false;
   @Input() menuItems: any = [];
+  @Input() headerActions: any = [];
   @Input() noItemsClass: any = 'background-image: url("/assets/svgs/No_Clients.svg")';
   @Input() entityTypeName = 'Identities';
   @Input() showNoItemsAdd = true;

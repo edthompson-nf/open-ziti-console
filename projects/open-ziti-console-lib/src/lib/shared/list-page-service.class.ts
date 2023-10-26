@@ -8,6 +8,7 @@ import {ConfirmComponent} from "../features/confirm/confirm.component";
 import {SETTINGS_SERVICE, SettingsService} from "../services/settings.service";
 
 import {isEmpty} from "lodash";
+import {CsvDownloadService} from "../services/csv-download.service";
 
 export abstract class ListPageServiceClass {
 
@@ -33,10 +34,15 @@ export abstract class ListPageServiceClass {
     refreshData: (sort?: {sortBy: string, ordering: string}) => void | undefined;
 
     menuItems: any = [];
+    tableHeaderActions: any = [];
     currentSettings: any = {};
     dialogRef: any;
 
-    constructor(@Inject(SETTINGS_SERVICE) protected settings: SettingsService, protected filterService: DataTableFilterService) {
+    constructor(
+        @Inject(SETTINGS_SERVICE) protected settings: SettingsService,
+        protected filterService: DataTableFilterService,
+        protected csvDownloadService: CsvDownloadService,
+    ) {
         this.dataService = inject(ZITI_DATA_SERVICE);
         this.settings.settingsChange.subscribe((settings) => {
             if (!isEmpty(this.settings?.settings?.session?.id)) {

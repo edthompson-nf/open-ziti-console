@@ -22,7 +22,9 @@
     "ngx-lottie": "^10.0.0",
     "primeng": "^16.0.2",
     "vanilla-jsoneditor": "^0.18.2",
-    "angularx-qrcode": "^16.0.2"
+    "angularx-qrcode": "^16.0.2",
+    "angular-csv-ext": "^1.0.5",
+    "file-saver": "^2.0.5"
   },
   "private": false,
   "dependencies": {
